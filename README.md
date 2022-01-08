@@ -5,9 +5,9 @@
 
 <p align="left"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=vikukumar" alt="vikukumar" /></a> </p>
 
-- 🔭 I’m currently working on [EDUDE](https://edude.ml)
+- 🔭 I’m currently working on [Infosys](https://infosys.com)
 
-- 🌱 I’m currently learning **Cloud Computing For A.I**
+- 🌱 I’m currently On **Cloud Computing For A.I**
 
 - 💬 Ask me about **Java , PHP , Python**
 
