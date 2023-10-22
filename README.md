@@ -9,7 +9,7 @@
 
 - 🌱 I’m currently On **Cloud Computing For A.I**
 
-- 💬 Ask me about **Java , PHP , Python**
+- 💬 Ask me about **Java , PHP , Python, Nodejs, Javascripts, MongoDB, MySQL,etc**
 
 
 <h3 align="left">Languages and Tools:</h3>
