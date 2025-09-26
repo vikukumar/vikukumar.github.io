@@ -43,7 +43,7 @@
 ### 📊 GitHub Stats & Activity  
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=vikukumar&layout=compact&langs_count=10&theme=tokyonight" alt="Top Languages"/>
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=vikukumar&layout=compact&langs_count=100&theme=tokyonight" alt="Top Languages"/>
 </p>
 
 <p align="center">
@@ -53,6 +53,9 @@
 <p align="center">
   <img src="https://github-readme-streak-stats.herokuapp.com/?user=vikukumar&theme=tokyonight" alt="GitHub Streak"/>
 </p>
+<p align="center">
+  <img src="https://github-contributor-stats.vercel.app/api?username=vikukumar&limit=5&theme=tokyonight&combine_all_monthly_contributions=true" alt="Github Activity Monthly">
+</p>
 
 <p align="center">
   <img src="https://github-contributor-stats.vercel.app/api?username=vikukumar&limit=5&theme=tokyonight&combine_all_yearly_contributions=true" alt="Contribution Stats"/>
@@ -61,6 +64,8 @@
 <p align="center">
   <img src="https://github-readme-activity-graph.vercel.app/graph?username=vikukumar&show_icons=true&theme=github&hide_border=true&count_private=true" alt="Github Activity">
 </p>
+
+
 
 ---
 
