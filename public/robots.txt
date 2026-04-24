@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vikukumar.github.io/sitemap.xml
+

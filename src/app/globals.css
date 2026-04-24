@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+:root {
+  --bg: 7 9 17;
+  --fg: 232 236 249;
+  --muted: 160 170 198;
+  --card: 11 14 27;
+  --border: 34 41 71;
+  --brand: 96 165 250;
+}
+
+html[data-theme="light"] {
+  --bg: 250 251 255;
+  --fg: 12 16 28;
+  --muted: 76 86 112;
+  --card: 255 255 255;
+  --border: 217 224 242;
+  --brand: 37 99 235;
+}
+
+html,
+body {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-y: auto;
+  background: rgb(var(--bg));
+  color-scheme: dark;
+}
+
+body {
+  overflow-y: visible;
+  margin: 0;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Make scrollbars look modern and avoid the white gutter feel on Windows */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(96, 165, 250, 0.55) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(96, 165, 250, 0.55), rgba(168, 85, 247, 0.45));
+  border-radius: 9999px;
+  border: 2px solid rgba(7, 9, 17, 0.35);
+}
+
+html[data-theme="light"] *::-webkit-scrollbar-thumb {
+  border-color: rgba(250, 251, 255, 0.8);
+}
+
+body {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: radial-gradient(1000px 600px at 20% 10%, rgba(59, 130, 246, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 75% 15%, rgba(168, 85, 247, 0.14), transparent 60%),
+    radial-gradient(1200px 800px at 50% 110%, rgba(34, 197, 94, 0.06), transparent 65%),
+    rgb(var(--bg));
+  color: rgb(var(--fg));
+  transition: background-color 420ms ease, color 420ms ease;
+}
+
+html[data-theme="light"] body {
+  background: radial-gradient(1000px 600px at 20% 10%, rgba(37, 99, 235, 0.12), transparent 60%),
+    radial-gradient(900px 500px at 75% 15%, rgba(168, 85, 247, 0.08), transparent 60%),
+    radial-gradient(1200px 800px at 50% 110%, rgba(34, 197, 94, 0.06), transparent 65%),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(246, 248, 255, 0.75)),
+    rgb(var(--bg));
+}
+
+::selection {
+  background: rgba(96, 165, 250, 0.25);
+}
+
+.container {
+  margin-inline: auto;
+  max-width: 1100px;
+  padding-inline: 1.25rem;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.glass {
+  background: rgba(11, 14, 27, 0.55);
+  border: 1px solid rgba(34, 41, 71, 0.75);
+  backdrop-filter: blur(10px);
+}
+
+html[data-theme="light"] .glass {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(217, 224, 242, 0.85);
+}
+
+.muted-glow {
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.18), 0 0 50px rgba(59, 130, 246, 0.08);
+}
+
+.noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.15'/%3E%3C/svg%3E");
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.3;
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.2;
+    transform: translateY(0px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  100% {
+    opacity: 0.25;
+    transform: translateY(0px);
+  }
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+html[data-theme="light"] .star {
+  background: rgba(12, 16, 28, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star {
+    animation: none !important;
+  }
+}

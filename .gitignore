@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+dist/
+.DS_Store
+*.log
+
+# Local resume/source documents (not published)
+documents/
