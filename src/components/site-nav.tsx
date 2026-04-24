@@ -36,8 +36,9 @@ export function SiteNav() {
       )}
     >
       <div className="container flex h-16 items-center justify-between">
-        <a href="#top" className="font-semibold tracking-tight">
-          VK<span className="text-brand">.</span>
+        <a href="#top" className="flex items-center gap-2 font-semibold tracking-tight hover:opacity-80 transition-opacity">
+          <img src="/favicon.png" alt="VK" className="h-6 w-6 rounded-md shadow-glow-sm" />
+          <span>VK<span className="text-brand">.</span></span>
         </a>
         <nav className="hidden items-center gap-6 text-sm text-muted md:flex">
           {items.map((l) => (
