@@ -5,125 +5,114 @@ import { ButtonLink } from "@/components/ui/button-link";
 import { PROFILE } from "@/data/profile";
 import { Badge } from "@/components/ui/badge";
 import { FaArrowUpRightFromSquare, FaGithub } from "react-icons/fa6";
-import { motion } from "framer-motion";
+import { Reveal, RevealItem } from "@/components/reveal";
 
 export function ProjectsGrid() {
   const pinned = PROFILE.projects.pinned;
   const selected = PROFILE.projects.selected;
 
-  const cardMotion = {
-    initial: { opacity: 1, y: 14, scale: 0.995, filter: "blur(0px)" },
-    whileInView: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-    viewport: { once: true, amount: 0.25 },
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-  } as const;
-
   return (
-    <div className="grid gap-10">
-      <div>
-        <div className="mb-4 flex flex-col gap-1">
-          <div className="flex items-baseline justify-between gap-4">
-            <div className="text-sm font-semibold text-fg">Pinned on GitHub</div>
-            <div className="text-xs text-muted">{pinned.length} projects</div>
-          </div>
-          <div className="text-sm text-muted">Recent open-source work and experiments.</div>
+    <div className="grid gap-20">
+      <Reveal staggerChildren={0.1}>
+        <div className="mb-10 flex items-center justify-between">
+          <h3 className="text-xl font-bold">Pinned Projects</h3>
+          <Badge variant="secondary">{pinned.length} total</Badge>
         </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          {pinned.map((p, idx) => (
-            <motion.div key={p.title} {...cardMotion} transition={{ ...cardMotion.transition, delay: Math.min(idx * 0.04, 0.2) }}>
-              <Card className="relative overflow-hidden p-6">
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-violet-500/10"
-                />
+        <div className="grid gap-8 md:grid-cols-2">
+          {pinned.map((p) => (
+            <RevealItem key={p.title}>
+              <Card className="group relative h-full overflow-hidden p-8 bg-card/40 border-border/50 hover:border-brand/30 transition-all duration-500">
+                <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand/5 blur-3xl transition-all duration-500 group-hover:bg-brand/10" />
+                
                 <div className="relative">
                   <div className="flex items-start justify-between gap-6">
                     <div>
-                      <div className="text-base font-semibold">{p.title}</div>
-                      <div className="mt-1 text-sm text-muted">{p.stack}</div>
+                      <h4 className="text-xl font-bold text-fg group-hover:text-brand transition-colors">{p.title}</h4>
+                      <p className="mt-1 text-xs font-bold uppercase tracking-widest text-muted">{p.stack}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {p.links.repo ? (
-                        <ButtonLink href={p.links.repo} variant="ghost" className="px-3 py-2">
-                          <FaGithub className="h-4 w-4" />
+                    <div className="flex gap-2">
+                      {p.links.repo && (
+                        <ButtonLink href={p.links.repo} variant="secondary" className="h-10 w-10 p-0 rounded-xl">
+                          <FaGithub size={18} />
                         </ButtonLink>
-                      ) : null}
-                      {p.links.demo ? (
-                        <ButtonLink href={p.links.demo} variant="ghost" className="px-3 py-2">
-                          <FaArrowUpRightFromSquare className="h-4 w-4" />
+                      )}
+                      {p.links.demo && (
+                        <ButtonLink href={p.links.demo} variant="secondary" className="h-10 w-10 p-0 rounded-xl">
+                          <FaArrowUpRightFromSquare size={16} />
                         </ButtonLink>
-                      ) : null}
+                      )}
                     </div>
                   </div>
 
-                  <p className="mt-4 text-sm text-muted">{p.description}</p>
+                  <p className="mt-6 text-sm leading-relaxed text-muted">{p.description}</p>
 
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-6 flex flex-wrap gap-2">
                     {p.tags.map((t) => (
-                      <Badge key={t} className="text-fg/90">
+                      <Badge key={t} className="bg-brand/5 text-brand border-brand/10 text-[10px] px-2 py-0">
                         {t}
                       </Badge>
                     ))}
                   </div>
 
-                  <ul className="mt-4 grid gap-2 text-sm text-muted">
+                  <ul className="mt-8 space-y-3">
                     {p.points.map((pt) => (
-                      <li key={pt}>• {pt}</li>
+                      <li key={pt} className="flex gap-3 text-xs text-muted leading-relaxed">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand/50" />
+                        <span>{pt}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               </Card>
-            </motion.div>
+            </RevealItem>
           ))}
         </div>
-      </div>
+      </Reveal>
 
-      <div>
-        <div className="mb-4 flex flex-col gap-1">
-          <div className="flex items-baseline justify-between gap-4">
-            <div className="text-sm font-semibold text-fg">Selected Work</div>
-            <div className="text-xs text-muted">{selected.length} projects</div>
-          </div>
-          <div className="text-sm text-muted">Enterprise and longer-term projects from my career.</div>
+      <Reveal staggerChildren={0.1}>
+        <div className="mb-10 flex items-center justify-between">
+          <h3 className="text-xl font-bold">Selected Work</h3>
+          <Badge variant="secondary">{selected.length} total</Badge>
         </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          {selected.map((p, idx) => (
-            <motion.div key={p.title} {...cardMotion} transition={{ ...cardMotion.transition, delay: Math.min(idx * 0.04, 0.16) }}>
-              <Card className="p-6">
+        <div className="grid gap-8 md:grid-cols-2">
+          {selected.map((p) => (
+            <RevealItem key={p.title}>
+              <Card className="group h-full p-8 bg-card/40 border-border/50 hover:border-brand/30 transition-all">
                 <div className="flex items-start justify-between gap-6">
                   <div>
-                    <div className="text-base font-semibold">{p.title}</div>
-                    <div className="mt-1 text-sm text-muted">{p.stack}</div>
+                    <h4 className="text-xl font-bold text-fg group-hover:text-brand transition-colors">{p.title}</h4>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-widest text-muted">{p.stack}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {p.links.demo ? (
-                      <ButtonLink href={p.links.demo} variant="ghost" className="px-3 py-2">
-                        <FaArrowUpRightFromSquare className="h-4 w-4" />
-                      </ButtonLink>
-                    ) : null}
-                  </div>
+                  {p.links.demo && (
+                    <ButtonLink href={p.links.demo} variant="secondary" className="h-10 w-10 p-0 rounded-xl">
+                      <FaArrowUpRightFromSquare size={16} />
+                    </ButtonLink>
+                  )}
                 </div>
 
-                <p className="mt-4 text-sm text-muted">{p.description}</p>
+                <p className="mt-6 text-sm leading-relaxed text-muted">{p.description}</p>
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-6 flex flex-wrap gap-2">
                   {p.tags.map((t) => (
-                    <Badge key={t} className="text-fg/90">
+                    <Badge key={t} className="bg-white/5 text-muted border-white/5 text-[10px]">
                       {t}
                     </Badge>
                   ))}
                 </div>
 
-                <ul className="mt-4 grid gap-2 text-sm text-muted">
+                <ul className="mt-8 space-y-3">
                   {p.points.map((pt) => (
-                    <li key={pt}>• {pt}</li>
+                    <li key={pt} className="flex gap-3 text-xs text-muted leading-relaxed">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted/50" />
+                      <span>{pt}</span>
+                    </li>
                   ))}
                 </ul>
               </Card>
-            </motion.div>
+            </RevealItem>
           ))}
         </div>
-      </div>
+      </Reveal>
     </div>
   );
 }

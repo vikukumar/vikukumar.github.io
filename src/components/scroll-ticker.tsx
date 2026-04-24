@@ -1,12 +1,9 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { PROFILE } from "@/data/profile";
 
 export function ScrollTicker() {
-  const { scrollY } = useScroll();
-  const x = useTransform(scrollY, [0, 1400], [0, -520]);
-
   const items = [
     ...PROFILE.keywords,
     "Kong Gateway",
@@ -20,16 +17,25 @@ export function ScrollTicker() {
     "RAG"
   ];
 
-  const loop = [...items, ...items, ...items];
+  // Double the items for seamless looping
+  const loop = [...items, ...items];
 
   return (
-    <div className="border-y border-border/70 bg-card/20">
-      <div className="container overflow-hidden">
-        <motion.div style={{ x }} className="flex whitespace-nowrap py-3 text-xs text-muted">
+    <div className="border-y border-border/70 bg-card/20 py-3 backdrop-blur-sm">
+      <div className="relative flex overflow-hidden">
+        <motion.div
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{
+            duration: 30,
+            ease: "linear",
+            repeat: Infinity
+          }}
+          className="flex whitespace-nowrap"
+        >
           {loop.map((t, idx) => (
-            <span key={`${t}-${idx}`} className="mr-8 inline-flex items-center gap-2">
-              <span className="h-1 w-1 rounded-full bg-brand/80" />
-              <span className="tracking-wide">{t}</span>
+            <span key={`${t}-${idx}`} className="mr-12 inline-flex items-center gap-2 text-xs font-medium text-muted/80">
+              <span className="h-1 w-1 rounded-full bg-brand" />
+              <span className="tracking-widest uppercase">{t}</span>
             </span>
           ))}
         </motion.div>
@@ -37,4 +43,3 @@ export function ScrollTicker() {
     </div>
   );
 }
-

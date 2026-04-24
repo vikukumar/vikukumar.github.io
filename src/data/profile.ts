@@ -6,7 +6,7 @@ export const PROFILE = {
     "I design and build secure, scalable backend and platform systems across telecom and financial domains — from microservices and API governance to Kubernetes operations and automation. Recently, I’m focused on GenAI integration (RAG, prompt engineering, fine-tuning workflows) and developer-platform engineering.",
   location: "Noida, India",
   email: "vikashkumar0037@gmail.com",
-  phone: "+91-7371017986",
+  phone: "",
   githubUsername: "vikukumar",
   avatarUrl: "https://github.com/vikukumar.png?size=240",
   now: "Building platform + GenAI systems • Open to backend/platform/AI engineering roles",

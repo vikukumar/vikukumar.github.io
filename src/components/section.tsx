@@ -1,27 +1,41 @@
-import { Reveal } from "@/components/reveal";
+"use client";
+
+import { Reveal, RevealItem } from "@/components/reveal";
 
 export function Section({
   id,
   title,
   subtitle,
-  children
+  children,
+  className
 }: {
   id: string;
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section id={id} className="scroll-mt-24 border-t border-border/70">
-      <div className="container py-16">
-        <Reveal>
-          <div className="flex flex-col gap-3">
-            <div className="h-px w-24 bg-gradient-to-r from-blue-400 via-violet-400 to-emerald-400" />
-            <h2 className="text-2xl font-semibold sm:text-3xl">{title}</h2>
-            {subtitle ? <p className="text-muted">{subtitle}</p> : null}
+    <section id={id} className={`relative scroll-mt-24 border-t border-border/40 ${className}`}>
+      <div className="container py-20 sm:py-32">
+        <div className="mb-16">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="h-px w-12 bg-brand" />
+            <span className="text-xs font-bold uppercase tracking-widest text-brand">
+              {id}
+            </span>
           </div>
-        </Reveal>
-        <div className="mt-8">{children}</div>
+          <h2 className="text-4xl font-bold tracking-tight sm:text-6xl mb-6">{title}</h2>
+          {subtitle && (
+            <p className="max-w-2xl text-xl text-muted leading-relaxed">
+              {subtitle}
+            </p>
+          )}
+        </div>
+        
+        <div className="relative">
+          {children}
+        </div>
       </div>
     </section>
   );

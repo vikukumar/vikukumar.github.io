@@ -15,8 +15,6 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
 
     document.documentElement.classList.add("lenis");
     document.documentElement.classList.add("lenis-smooth");
-    document.body.classList.add("lenis");
-    document.body.classList.add("lenis-smooth");
 
     const lenis = new Lenis({
       duration: 1.1,
@@ -34,8 +32,6 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
       lenisRef.current = null;
       document.documentElement.classList.remove("lenis");
       document.documentElement.classList.remove("lenis-smooth");
-      document.body.classList.remove("lenis");
-      document.body.classList.remove("lenis-smooth");
     };
   }, []);
 

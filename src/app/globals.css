@@ -18,50 +18,39 @@ html[data-theme="light"] {
   --brand: 37 99 235;
 }
 
-html,
-body {
-  min-height: 100%;
-  overflow-x: hidden;
-}
-
 html {
-  overflow-y: auto;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100%;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
   background: rgb(var(--bg));
   color-scheme: dark;
 }
 
+html::-webkit-scrollbar {
+  display: none !important;
+}
+
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+}
+
 body {
-  overflow-y: visible;
   margin: 0;
+  overflow: hidden !important;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html[data-theme="light"] {
   color-scheme: light;
-}
-
-/* Make scrollbars look modern and avoid the white gutter feel on Windows */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(96, 165, 250, 0.55) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(96, 165, 250, 0.55), rgba(168, 85, 247, 0.45));
-  border-radius: 9999px;
-  border: 2px solid rgba(7, 9, 17, 0.35);
-}
-
-html[data-theme="light"] *::-webkit-scrollbar-thumb {
-  border-color: rgba(250, 251, 255, 0.8);
 }
 
 body {
@@ -162,8 +151,25 @@ html[data-theme="light"] .star {
   background: rgba(12, 16, 28, 0.35);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .star {
-    animation: none !important;
-  }
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.15);
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
+}
+
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }

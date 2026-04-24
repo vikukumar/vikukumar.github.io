@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} ${mono.variable}`}>
         <ThemeProvider>
           <LenisProvider>
-            <div className="relative min-h-screen overflow-x-hidden noise">
+            <main className="relative">
               <ScrollScene />
               <CursorGlow />
               <Starfield />
@@ -54,11 +54,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <p>
                       © {new Date().getFullYear()} {SITE.name}. All rights reserved.
                     </p>
-                    <p className="opacity-80">Made with &heart; in India.</p>
+                    <p className="opacity-80">Made with ❤️ in India.</p>
                   </div>
                 </div>
               </footer>
-            </div>
+            </main>
           </LenisProvider>
         </ThemeProvider>
       </body>

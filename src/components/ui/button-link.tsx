@@ -25,7 +25,7 @@ export function ButtonLink({
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noreferrer" : undefined}
       className={cn(
-        "inline-flex items-center gap-2 rounded-xl border border-border/70 px-4 py-2 text-sm transition",
+        "inline-flex items-center justify-center gap-2 rounded-xl border border-border/70 px-4 py-2 text-sm transition",
         styles,
         className
       )}

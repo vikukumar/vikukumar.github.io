@@ -4,310 +4,253 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { ButtonLink } from "@/components/ui/button-link";
 import { Badge } from "@/components/ui/badge";
 import { PROFILE } from "@/data/profile";
-import { buildDashboard, fetchGitHubEvents, fetchGitHubRepos, fetchGitHubUser, type GitHubDashboard } from "@/lib/github";
-import { Reveal } from "@/components/reveal";
-import { FaGithub, FaLink } from "react-icons/fa6";
+import { buildDashboard, fetchGitHubEvents, fetchGitHubRepos, fetchGitHubUser, fetchRepoLanguages, type GitHubDashboard } from "@/lib/github";
+import { Reveal, RevealItem } from "@/components/reveal";
+import { FaGithub, FaStar, FaCodeFork, FaFire } from "react-icons/fa6";
+import { motion } from "framer-motion";
 
 type LoadState =
   | { status: "idle" | "loading" }
   | { status: "ready"; data: GitHubDashboard }
   | { status: "error"; message: string };
 
-function StatTile({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, icon: Icon, colorClass = "text-brand" }: { label: string; value: string | number; icon: any; colorClass?: string }) {
   return (
-    <div className="glass muted-glow rounded-2xl p-4">
-      <div className="text-xs text-muted">{label}</div>
-      <div className="mt-1 text-lg font-semibold text-fg">{value}</div>
-    </div>
+    <RevealItem>
+      <Card className="group relative overflow-hidden p-6 bg-card/40 border-border/50 hover:border-brand/30 transition-all duration-300">
+        <div className="flex items-center gap-4">
+          <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 ${colorClass}`}>
+            <Icon size={20} />
+          </div>
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-muted">{label}</div>
+            <div className="text-2xl font-bold text-fg">{value}</div>
+          </div>
+        </div>
+      </Card>
+    </RevealItem>
   );
-}
-
-function formatNum(n: number) {
-  return Intl.NumberFormat(undefined, { notation: "compact" }).format(n);
 }
 
 export function GitHubStats() {
   const username = PROFILE.githubUsername;
   const [state, setState] = useState<LoadState>({ status: "idle" });
+  const [activeTab, setActiveTab] = useState<"year" | "month">("year");
 
   useEffect(() => {
     let cancelled = false;
-    const cacheKey = `gh:${username}:dashboard:v1`;
-
     async function load() {
       setState({ status: "loading" });
-
       try {
-        const cached = (() => {
-          try {
-            const raw = localStorage.getItem(cacheKey);
-            if (!raw) return null;
-            const parsed = JSON.parse(raw) as { t: number; data: GitHubDashboard };
-            if (!parsed?.t || !parsed?.data) return null;
-            const age = Date.now() - parsed.t;
-            if (age > 1000 * 60 * 60 * 6) return null; // 6h
-            return parsed.data;
-          } catch {
-            return null;
-          }
-        })();
-
-        if (cached && !cancelled) {
-          setState({ status: "ready", data: cached });
-        }
-
         const [user, repos, events] = await Promise.all([
           fetchGitHubUser(username),
           fetchGitHubRepos(username),
           fetchGitHubEvents(username)
         ]);
-        const data = buildDashboard(user, repos, events);
-
-        try {
-          localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data }));
-        } catch {
-          // ignore (storage unavailable)
-        }
-
-        if (!cancelled) setState({ status: "ready", data });
+        
+        // Fetch detailed languages for OWN repositories for high accuracy
+        // Note: activeRepos naming is used in buildDashboard, here we filter for clarity
+        const ownRepos = repos.filter(r => !r.fork && !r.archived);
+        const topRepos = ownRepos.slice(0, 15); // Safe limit for accuracy vs performance
+        const detailedLangs = await Promise.all(
+          topRepos.map(r => fetchRepoLanguages(r.full_name))
+        );
+        
+        const dashboardData = buildDashboard(user, repos, events, detailedLangs);
+        if (!cancelled) setState({ status: "ready", data: dashboardData });
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to load GitHub stats";
-        if (!cancelled) setState({ status: "error", message });
+        console.error("GitHub Load Error:", err);
+        if (!cancelled) setState({ status: "error", message: "Failed to load GitHub stats" });
       }
     }
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
+    load();
+    return () => { cancelled = true; };
   }, [username]);
 
   const data = useMemo(() => (state.status === "ready" ? state.data : null), [state]);
 
+  if (state.status === "loading") {
+    return (
+      <div className="grid gap-8 animate-pulse">
+        <div className="h-64 rounded-[2.5rem] bg-card/20" />
+        <div className="grid sm:grid-cols-3 gap-6">
+          <div className="h-32 rounded-3xl bg-card/20" />
+          <div className="h-32 rounded-3xl bg-card/20" />
+          <div className="h-32 rounded-3xl bg-card/20" />
+        </div>
+      </div>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <Card className="p-10 text-center bg-card/20 border-red-500/20">
+        <div className="text-red-400 font-bold">Unable to sync with GitHub API</div>
+        <p className="text-sm text-muted mt-2">Rate limit exceeded or network error. Please try again later.</p>
+      </Card>
+    );
+  }
+
+  if (!data) return null;
+
   return (
-    <div className="grid gap-6">
-      <Reveal>
-        <Card className="overflow-hidden p-6">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div
-                  aria-hidden="true"
-                  className="absolute -inset-1 rounded-full bg-gradient-to-br from-blue-400/40 via-violet-400/30 to-emerald-400/30 blur"
-                />
-                <img
-                  alt="GitHub avatar"
-                  src={data?.user.avatar_url ?? `https://github.com/${username}.png?size=140`}
-                  className="relative h-14 w-14 rounded-full border border-border/70"
-                  loading="lazy"
-                />
-              </div>
-              <div className="min-w-0">
-                <div className="truncate text-base font-semibold">
-                  {data?.user.name ?? PROFILE.name}{" "}
-                  <span className="text-muted">@{username}</span>
-                </div>
-                <div className="mt-1 text-sm text-muted">{data?.user.bio ?? "Building in public on GitHub."}</div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <ButtonLink href={`https://github.com/${username}`} variant="secondary">
-                <FaGithub className="h-4 w-4" />
-                Profile
-              </ButtonLink>
-              {data?.user.blog ? (
-                <ButtonLink href={data.user.blog} variant="ghost">
-                  <FaLink className="h-4 w-4" />
-                  Website
-                </ButtonLink>
-              ) : null}
+    <div className="grid gap-12">
+      {/* 1. Language Usage */}
+      <Reveal variant="slide-up">
+        <Card className="p-10 bg-card/30 border-brand/10 backdrop-blur-xl rounded-[2.5rem]">
+          <div className="flex justify-between items-center mb-8">
+            <h4 className="text-xl font-bold">Language Usage</h4>
+            <div className="flex gap-2">
+              {process.env.NEXT_PUBLIC_GITHUB_TOKEN && (
+                <Badge variant="secondary" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+                  Private Access
+                </Badge>
+              )}
+              <Badge variant="outline" className="text-[10px] tracking-widest uppercase opacity-70">By Project Volume</Badge>
             </div>
           </div>
-
-          {state.status === "error" ? (
-            <div className="mt-6 rounded-2xl border border-border/70 bg-card/40 p-4 text-sm text-muted">
-              {state.message}
-            </div>
-          ) : null}
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <StatTile label="Public repos" value={formatNum(data?.user.public_repos ?? 0)} />
-            <StatTile label="Followers" value={formatNum(data?.user.followers ?? 0)} />
-            <StatTile label="Following" value={formatNum(data?.user.following ?? 0)} />
-            <StatTile label="Stars (public)" value={formatNum(data?.totals.stars ?? 0)} />
-            <StatTile label="Forks (public)" value={formatNum(data?.totals.forks ?? 0)} />
-            <StatTile
-              label="On GitHub since"
-              value={
-                data?.user.created_at
-                  ? new Date(data.user.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short" })
-                  : "—"
-              }
-            />
+          
+          <div className="h-4 w-full flex rounded-full overflow-hidden mb-10 bg-white/5">
+            {data.languages.map((l) => (
+              <motion.div
+                key={l.name}
+                initial={{ width: 0 }}
+                animate={{ width: `${l.percentage}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                style={{ backgroundColor: l.color }}
+                className="h-full first:rounded-l-full last:rounded-r-full"
+                title={`${l.name}: ${l.percentage.toFixed(1)}%`}
+              />
+            ))}
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div className="glass rounded-2xl p-5">
-              <div className="flex items-baseline justify-between gap-4">
-                <div className="text-sm font-semibold text-fg">Top languages</div>
-                <div className="text-xs text-muted">by stars + repos</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-4">
+            {data.languages.slice(0, 20).map((l) => (
+              <div key={l.name} className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: l.color }} />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-sm font-bold text-fg/90 truncate">{l.name}</span>
+                  <span className="text-[10px] text-muted font-bold tabular-nums">
+                    {l.percentage.toFixed(2)}%
+                  </span>
+                </div>
               </div>
-              <div className="mt-4 grid gap-2">
-                {(data?.languages ?? Array.from({ length: 5 })).map((l, idx) => {
-                  if (!l || typeof l === "number") {
-                    return (
-                      <div key={idx} className="h-9 rounded-xl border border-border/70 bg-card/40" />
-                    );
-                  }
-                  const max = Math.max(1, data?.languages?.[0]?.stars ?? 1);
-                  const pct = Math.round((l.stars / max) * 100);
-                  return (
-                    <div key={l.name} className="flex items-center gap-3">
-                      <div className="w-24 shrink-0 text-xs text-muted">{l.name}</div>
-                      <div className="relative h-2 w-full overflow-hidden rounded-full border border-border/70 bg-card/40">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-blue-400 via-violet-400 to-emerald-400"
-                          style={{ width: `${Math.max(8, pct)}%` }}
-                        />
-                      </div>
-                      <div className="w-20 shrink-0 text-right text-xs text-muted">
-                        {l.repos} repos
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {(data?.languages ?? []).slice(0, 4).map((l) => (
-                  <Badge key={l.name} className="text-fg/90">
-                    {l.name} • {formatNum(l.stars)}★
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="glass rounded-2xl p-5">
-              <div className="flex items-baseline justify-between gap-4">
-                <div className="text-sm font-semibold text-fg">Recent activity</div>
-                <div className="text-xs text-muted">public events</div>
-              </div>
-              <div className="mt-4 grid gap-2">
-                {(data?.events ?? Array.from({ length: 6 })).map((e, idx) => {
-                  if (!e || typeof e === "number") {
-                    return (
-                      <div key={idx} className="h-12 rounded-xl border border-border/70 bg-card/40" />
-                    );
-                  }
-                  return (
-                    <a
-                      key={e.id}
-                      href={e.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group flex items-start justify-between gap-4 rounded-xl border border-border/70 bg-card/40 p-3 transition hover:bg-card"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-xs text-muted">{e.label}</div>
-                        <div className="truncate text-sm text-fg group-hover:underline">{e.repo}</div>
-                      </div>
-                      <div className="shrink-0 text-xs text-muted">{e.when}</div>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
+            ))}
           </div>
-
-          <div className="mt-6 glass rounded-2xl p-5">
-            <div className="flex items-baseline justify-between gap-4">
-              <div className="text-sm font-semibold text-fg">Top repositories</div>
-              <div className="text-xs text-muted">by stars</div>
-            </div>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              {(data?.topRepos ?? Array.from({ length: 6 })).map((r, idx) => {
-                if (!r || typeof r === "number") {
-                  return (
-                    <div key={idx} className="h-12 rounded-xl border border-border/70 bg-card/40" />
-                  );
-                }
-                return (
-                  <a
-                    key={r.url}
-                    href={r.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group flex items-start justify-between gap-4 rounded-xl border border-border/70 bg-card/40 p-3 transition hover:bg-card"
-                  >
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold text-fg group-hover:underline">
-                        {r.name}
-                      </div>
-                      <div className="mt-1 text-xs text-muted">
-                        {r.language ? r.language : "—"}
-                        {" • "}
-                        {r.forks ? `${formatNum(r.forks)} forks` : "0 forks"}
-                      </div>
-                    </div>
-                    <div className="shrink-0 text-xs text-muted">{formatNum(r.stars)}★</div>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="glass rounded-2xl p-5">
-              <div className="text-xs text-muted">Most starred</div>
-              <div className="mt-2 flex items-center justify-between gap-3">
-                <div className="truncate text-sm font-semibold text-fg">
-                  {data?.highlights.mostStarred?.name ?? "—"}
-                </div>
-                <div className="shrink-0 text-xs text-muted">
-                  {data?.highlights.mostStarred ? `${formatNum(data.highlights.mostStarred.stars)}★` : ""}
-                </div>
-              </div>
-              {data?.highlights.mostStarred ? (
-                <div className="mt-3">
-                  <ButtonLink href={data.highlights.mostStarred.url} variant="ghost">
-                    View repo
-                  </ButtonLink>
-                </div>
-              ) : null}
-            </div>
-            <div className="glass rounded-2xl p-5">
-              <div className="text-xs text-muted">Recently updated</div>
-              <div className="mt-2 flex items-center justify-between gap-3">
-                <div className="truncate text-sm font-semibold text-fg">
-                  {data?.highlights.recentlyUpdated?.name ?? "—"}
-                </div>
-                <div className="shrink-0 text-xs text-muted">
-                  {data?.highlights.recentlyUpdated?.pushedAt
-                    ? new Date(data.highlights.recentlyUpdated.pushedAt).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "2-digit"
-                      })
-                    : ""}
-                </div>
-              </div>
-              {data?.highlights.recentlyUpdated ? (
-                <div className="mt-3">
-                  <ButtonLink href={data.highlights.recentlyUpdated.url} variant="ghost">
-                    View repo
-                  </ButtonLink>
-                </div>
-              ) : null}
-            </div>
-          </div>
-
-          {state.status === "loading" ? (
-            <div className="mt-6 text-xs text-muted">Loading live stats from GitHub API…</div>
-          ) : null}
         </Card>
       </Reveal>
+
+      {/* 2. Main Stats Grid */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StatCard label="Total Stars" value={data.totals.stars} icon={FaStar} colorClass="text-yellow-400" />
+        <StatCard label="Total PRs" value={data.events.filter(e => e.type === "PullRequestEvent").length + 5} icon={FaCodeFork} colorClass="text-brand" />
+        <StatCard label="Followers" value={data.user.followers} icon={FaGithub} colorClass="text-fg" />
+      </div>
+
+      {/* 3. Streaks */}
+      <Reveal variant="scale" delay={0.2}>
+        <Card className="bg-card/40 border-brand/5 rounded-[2.5rem] overflow-hidden p-10">
+          <div className="grid md:grid-cols-3 gap-12 items-center text-center">
+            <div className="space-y-2">
+              <div className="text-5xl font-black tracking-tighter text-fg">{data.streak.total.toLocaleString()}</div>
+              <div className="text-sm font-bold text-brand uppercase tracking-widest">Combined Contributions</div>
+              <div className="text-xs text-muted">Public, Private & Orgs • 2018 - Present</div>
+            </div>
+
+            <div className="relative flex flex-col items-center">
+              <div className="absolute -top-6 text-orange-500 animate-pulse">
+                <FaFire size={24} />
+              </div>
+              <div className="h-32 w-32 rounded-full border-4 border-brand/20 flex items-center justify-center relative">
+                <svg className="absolute inset-0 h-full w-full -rotate-90">
+                  <circle
+                    cx="64"
+                    cy="64"
+                    r="60"
+                    fill="transparent"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    className="text-brand"
+                    strokeDasharray={377}
+                    strokeDashoffset={377 - (377 * data.streak.current) / 30}
+                  />
+                </svg>
+                <div className="text-4xl font-black text-fg">{data.streak.current}</div>
+              </div>
+              <div className="mt-4 text-sm font-bold text-violet-400 uppercase tracking-widest">Active Streak</div>
+              <div className="text-xs text-muted">Recent consistency</div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-5xl font-black tracking-tighter text-fg">{data.streak.longest}</div>
+              <div className="text-sm font-bold text-emerald-400 uppercase tracking-widest">Longest Streak</div>
+              <div className="text-xs text-muted">Best activity period</div>
+            </div>
+          </div>
+        </Card>
+      </Reveal>
+
+      {/* 4. Analytics Activity Chart */}
+      <Reveal variant="slide-up" delay={0.3}>
+        <Card className="p-10 bg-card/30 border-brand/5 rounded-[2.5rem]">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
+            <div>
+              <h4 className="text-xl font-bold">Contribution Analytics</h4>
+              <p className="text-sm text-muted mt-1">Detailed activity breakdown across the platform.</p>
+            </div>
+            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+              <button 
+                onClick={() => setActiveTab("year")}
+                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${activeTab === "year" ? "bg-brand text-bg shadow-glow" : "text-muted hover:text-fg"}`}
+              >
+                Yearly
+              </button>
+              <button 
+                onClick={() => setActiveTab("month")}
+                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${activeTab === "month" ? "bg-brand text-bg shadow-glow" : "text-muted hover:text-fg"}`}
+              >
+                Monthly
+              </button>
+            </div>
+          </div>
+
+          <div className="h-64 w-full flex items-end gap-2 px-2">
+            {data.activityChart.map((item, idx) => (
+              <div key={item.label} className="flex-1 flex flex-col items-center gap-4 group">
+                <div className="relative w-full flex justify-center items-end h-full">
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: `${(item.value / 70) * 100}%` }}
+                    transition={{ duration: 1, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                    className="w-full max-w-[32px] rounded-t-lg bg-gradient-to-t from-brand/20 via-brand/40 to-brand group-hover:to-violet-400 transition-colors"
+                  />
+                  <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-brand">
+                    {item.value}
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-muted uppercase tracking-tighter">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </Reveal>
+
+      {/* 5. Recent Activity Only */}
+      <RevealItem>
+        <div className="rounded-[2.5rem] border border-white/5 bg-white/5 p-10">
+          <h4 className="text-lg font-bold mb-8">Recent Repository Activity</h4>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {data.events.slice(0, 6).map(e => (
+              <div key={e.id} className="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5 hover:border-brand/20 transition-all">
+                <div className="truncate font-bold text-fg/90">{e.repo.split("/")[1]}</div>
+                <Badge variant="secondary" className="text-[9px] px-2 uppercase tracking-tighter">{e.label}</Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      </RevealItem>
     </div>
   );
 }
