@@ -38,10 +38,13 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Fetch GitHub Data
+        run: node scripts/fetch-github-data.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
+
       - name: Build (static export)
         run: pnpm build
-        env:
-          NEXT_PUBLIC_GITHUB_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -44,25 +44,32 @@ export function GitHubStats() {
     async function load() {
       setState({ status: "loading" });
       try {
-        const [user, repos, events] = await Promise.all([
-          fetchGitHubUser(username),
-          fetchGitHubRepos(username),
-          fetchGitHubEvents(username)
-        ]);
+        const res = await fetch("/github-data.json");
+        if (!res.ok) throw new Error("Local data not found");
+        const json = await res.json();
         
-        // Fetch detailed languages for OWN repositories for high accuracy
-        // Note: activeRepos naming is used in buildDashboard, here we filter for clarity
-        const ownRepos = repos.filter(r => !r.fork && !r.archived);
-        const topRepos = ownRepos.slice(0, 15); // Safe limit for accuracy vs performance
-        const detailedLangs = await Promise.all(
-          topRepos.map(r => fetchRepoLanguages(r.full_name))
+        const data = buildDashboard(
+          json.user, 
+          json.repos, 
+          json.events, 
+          json.detailedLangs
         );
         
-        const dashboardData = buildDashboard(user, repos, events, detailedLangs);
-        if (!cancelled) setState({ status: "ready", data: dashboardData });
+        if (!cancelled) setState({ status: "ready", data });
       } catch (err) {
-        console.error("GitHub Load Error:", err);
-        if (!cancelled) setState({ status: "error", message: "Failed to load GitHub stats" });
+        console.error("Local GitHub Data Load Error:", err);
+        // Fallback to client-side fetch if local data fails (unauthenticated)
+        try {
+          const [user, repos, events] = await Promise.all([
+            fetchGitHubUser(username),
+            fetchGitHubRepos(username),
+            fetchGitHubEvents(username)
+          ]);
+          const data = buildDashboard(user, repos, events, []);
+          if (!cancelled) setState({ status: "ready", data });
+        } catch (innerErr) {
+          if (!cancelled) setState({ status: "error", message: "Unable to sync GitHub stats" });
+        }
       }
     }
     load();
