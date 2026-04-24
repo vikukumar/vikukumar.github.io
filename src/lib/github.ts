@@ -86,10 +86,11 @@ function safeIso(date: string | null | undefined) {
 
 export async function fetchGitHubUser(username: string): Promise<GitHubUser> {
   const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+  const isValidToken = token && token.length > 0 && token !== "undefined" && token !== "null";
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json"
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (isValidToken) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`https://api.github.com/users/${username}`, {
     headers
@@ -100,11 +101,12 @@ export async function fetchGitHubUser(username: string): Promise<GitHubUser> {
 
 export async function fetchGitHubRepos(username: string): Promise<GitHubRepo[]> {
   const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+  const isValidToken = token && token.length > 0 && token !== "undefined" && token !== "null";
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json"
   };
   
-  if (token) {
+  if (isValidToken) {
     headers.Authorization = `Bearer ${token}`;
     // When a token is provided, we use the /user/repos endpoint to get all repos (public, private, orgs)
     const res = await fetch(`https://api.github.com/user/repos?per_page=100&sort=updated&type=all&affiliation=owner,collaborator,organization_member`, {
@@ -124,10 +126,11 @@ export async function fetchGitHubRepos(username: string): Promise<GitHubRepo[]> 
 
 export async function fetchGitHubEvents(username: string): Promise<GitHubEvent[]> {
   const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+  const isValidToken = token && token.length > 0 && token !== "undefined" && token !== "null";
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json"
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (isValidToken) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`https://api.github.com/users/${username}/events/public?per_page=30`, {
     headers
@@ -146,10 +149,11 @@ export async function fetchGitHubOrgs(username: string): Promise<Array<{ login: 
 
 export async function fetchRepoLanguages(fullName: string): Promise<Record<string, number>> {
   const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+  const isValidToken = token && token.length > 0 && token !== "undefined" && token !== "null";
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json"
   };
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (isValidToken) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`https://api.github.com/repos/${fullName}/languages`, {
     headers

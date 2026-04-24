@@ -87,8 +87,23 @@ export function GitHubStats() {
   if (state.status === "error") {
     return (
       <Card className="p-10 text-center bg-card/20 border-red-500/20">
-        <div className="text-red-400 font-bold">Unable to sync with GitHub API</div>
-        <p className="text-sm text-muted mt-2">Rate limit exceeded or network error. Please try again later.</p>
+        <div className="text-red-400 font-bold mb-4">GitHub API Sync Limited</div>
+        <p className="text-sm text-muted mb-6 max-w-md mx-auto">
+          The GitHub API rate limit has been reached. To fix this and see all analytics (including private work), please configure a token.
+        </p>
+        <div className="flex flex-col gap-3 items-center">
+          <Badge variant="outline" className="text-[10px] py-1 px-3">
+            Add NEXT_PUBLIC_GITHUB_TOKEN to your .env.local
+          </Badge>
+          <a 
+            href="https://github.com/settings/tokens" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs text-brand hover:underline"
+          >
+            Generate a token on GitHub &rarr;
+          </a>
+        </div>
       </Card>
     );
   }
