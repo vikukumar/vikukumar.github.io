@@ -75,14 +75,14 @@ function StepCard({ step, index }: { step: typeof STEPS[number]; index: number }
   const x = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [100, 0, 0, -100]);
 
   return (
-    <div ref={ref} className="min-h-screen flex items-center justify-center py-20 overflow-hidden">
+    <div ref={ref} className="min-h-screen flex items-center justify-center py-12 sm:py-20 overflow-hidden">
       <motion.div style={{ opacity, scale, x }} className="w-full max-w-5xl px-4">
-        <Card className="p-8 md:p-16 bg-card/40 backdrop-blur-2xl border-white/5 relative group">
+        <Card className="p-6 md:p-16 bg-card/40 backdrop-blur-2xl border-white/5 relative group">
           <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-brand/5 blur-[120px] group-hover:bg-brand/10 transition-all duration-700" />
           
-          <div className="relative z-10 grid lg:grid-cols-[auto_1fr] gap-12 lg:items-center">
-            <div className="flex flex-col items-center justify-center">
-              <span className="text-8xl font-black text-brand/10 tracking-tighter leading-none mb-4">
+          <div className="relative z-10 grid lg:grid-cols-[auto_1fr] gap-8 lg:gap-12 lg:items-center">
+            <div className="flex flex-col items-center justify-center lg:flex">
+              <span className="text-6xl md:text-8xl font-black text-brand/10 tracking-tighter leading-none mb-4">
                 {String(index + 1).padStart(2, "0")}
               </span>
               <div className="h-24 w-px bg-gradient-to-b from-brand/50 to-transparent" />
@@ -94,8 +94,8 @@ function StepCard({ step, index }: { step: typeof STEPS[number]; index: number }
                   <Badge key={t} variant="secondary" className="bg-brand/10 text-brand border-none text-[10px] tracking-widest uppercase">{t}</Badge>
                 ))}
               </div>
-              <h3 className="text-4xl md:text-7xl font-bold text-fg mb-6 leading-tight">{step.title}</h3>
-              <p className="text-xl md:text-2xl text-muted mb-10 max-w-3xl leading-relaxed">{step.description}</p>
+              <h3 className="text-3xl sm:text-4xl md:text-7xl font-bold text-fg mb-4 md:mb-6 leading-tight">{step.title}</h3>
+              <p className="text-lg md:text-2xl text-muted mb-8 md:mb-10 max-w-3xl leading-relaxed">{step.description}</p>
               
               <ul className="grid sm:grid-cols-2 gap-6">
                 {step.points.map(p => (

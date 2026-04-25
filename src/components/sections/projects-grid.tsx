@@ -21,7 +21,7 @@ export function ProjectsGrid() {
         <div className="grid gap-8 md:grid-cols-2">
           {pinned.map((p) => (
             <RevealItem key={p.title}>
-              <Card className="group relative h-full overflow-hidden p-8 bg-card/40 border-border/50 hover:border-brand/30 transition-all duration-500">
+              <Card className="group relative h-full overflow-hidden p-6 sm:p-8 bg-card/40 border-border/50 hover:border-brand/30 transition-all duration-500">
                 <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand/5 blur-3xl transition-all duration-500 group-hover:bg-brand/10" />
                 
                 <div className="relative">
@@ -77,7 +77,7 @@ export function ProjectsGrid() {
         <div className="grid gap-8 md:grid-cols-2">
           {selected.map((p) => (
             <RevealItem key={p.title}>
-              <Card className="group h-full p-8 bg-card/40 border-border/50 hover:border-brand/30 transition-all">
+              <Card className="group h-full p-6 sm:p-8 bg-card/40 border-border/50 hover:border-brand/30 transition-all">
                 <div className="flex items-start justify-between gap-6">
                   <div>
                     <h4 className="text-xl font-bold text-fg group-hover:text-brand transition-colors">{p.title}</h4>

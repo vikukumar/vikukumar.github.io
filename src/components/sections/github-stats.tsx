@@ -121,7 +121,7 @@ export function GitHubStats() {
     <div className="grid gap-12">
       {/* 1. Language Usage */}
       <Reveal variant="slide-up">
-        <Card className="p-10 bg-card/30 border-brand/10 backdrop-blur-xl rounded-[2.5rem]">
+        <Card className="p-5 sm:p-10 bg-card/30 border-brand/10 backdrop-blur-xl rounded-[1.5rem] sm:rounded-[2.5rem]">
           <div className="flex justify-between items-center mb-8">
             <h4 className="text-xl font-bold">Language Usage</h4>
             <div className="flex gap-2">
@@ -173,7 +173,7 @@ export function GitHubStats() {
 
       {/* 3. Streaks */}
       <Reveal variant="scale" delay={0.2}>
-        <Card className="bg-card/40 border-brand/5 rounded-[2.5rem] overflow-hidden p-10">
+        <Card className="bg-card/40 border-brand/5 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden p-6 sm:p-10">
           <div className="grid md:grid-cols-3 gap-12 items-center text-center">
             <div className="space-y-2">
               <div className="text-5xl font-black tracking-tighter text-fg">{data.streak.total.toLocaleString()}</div>
@@ -216,7 +216,7 @@ export function GitHubStats() {
 
       {/* 4. Analytics Activity Chart */}
       <Reveal variant="slide-up" delay={0.3}>
-        <Card className="p-10 bg-card/30 border-brand/5 rounded-[2.5rem]">
+        <Card className="p-5 sm:p-10 bg-card/30 border-brand/5 rounded-[1.5rem] sm:rounded-[2.5rem]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
             <div>
               <h4 className="text-xl font-bold">Contribution Analytics</h4>
@@ -238,7 +238,7 @@ export function GitHubStats() {
             </div>
           </div>
 
-          <div className="h-64 w-full flex items-end gap-2 px-2">
+          <div className="h-64 w-full flex items-end gap-1 sm:gap-2 px-1">
             {data.activityChart.map((item, idx) => (
               <div key={item.label} className="flex-1 flex flex-col items-center gap-4 group">
                 <div className="relative w-full flex justify-center items-end h-full">
@@ -261,7 +261,7 @@ export function GitHubStats() {
 
       {/* 5. Recent Activity Only */}
       <RevealItem>
-        <div className="rounded-[2.5rem] border border-white/5 bg-white/5 p-10">
+        <div className="rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 bg-white/5 p-6 sm:p-10">
           <h4 className="text-lg font-bold mb-8">Recent Repository Activity</h4>
           <div className="grid sm:grid-cols-2 gap-4">
             {data.events.slice(0, 6).map(e => (

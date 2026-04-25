@@ -17,7 +17,7 @@ export function Section({
 }) {
   return (
     <section id={id} className={`relative scroll-mt-24 border-t border-border/40 ${className}`}>
-      <div className="container py-20 sm:py-32">
+      <div className="container py-16 sm:py-32">
         <div className="mb-16">
           <div className="flex items-center gap-4 mb-4">
             <div className="h-px w-12 bg-brand" />

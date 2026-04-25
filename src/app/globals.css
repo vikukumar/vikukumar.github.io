@@ -20,7 +20,7 @@ html[data-theme="light"] {
 
 html {
   overflow-y: auto !important;
-  overflow-x: hidden !important;
+  overflow-x: hidden;
   height: 100%;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
@@ -43,7 +43,7 @@ html::-webkit-scrollbar {
 
 body {
   margin: 0;
-  overflow: hidden !important;
+  overflow-x: hidden;
   height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -77,8 +77,15 @@ html[data-theme="light"] body {
 
 .container {
   margin-inline: auto;
+  width: 100%;
   max-width: 1100px;
-  padding-inline: 1.25rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-inline: 1.5rem;
+  }
 }
 
 .lenis.lenis-smooth {

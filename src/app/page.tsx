@@ -29,7 +29,7 @@ export default function HomePage() {
 
       <section id="top" className="relative flex min-h-screen flex-col justify-center">
         <HeroOrbs />
-        <div className="container relative z-10 py-20 sm:py-32">
+        <div className="container relative z-10 py-16 sm:py-32">
           <Reveal variant="fade" delay={0.1}>
             <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-4 py-2 text-xs font-medium text-brand shadow-glow">
               <span className="relative flex h-2 w-2">
@@ -43,7 +43,7 @@ export default function HomePage() {
           <div className="mt-10 grid gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
             <Reveal staggerChildren={0.1} delay={0.2}>
               <RevealItem>
-                <h1 className="text-balance text-5xl font-bold tracking-tight sm:text-8xl">
+                <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-7xl lg:text-8xl">
                   <span className="gradient-text bg-gradient-to-r from-blue-400 via-violet-400 to-emerald-300">
                     {PROFILE.name}
                   </span>
@@ -55,7 +55,7 @@ export default function HomePage() {
                 </p>
               </RevealItem>
               <RevealItem className="mt-6">
-                <p className="max-w-2xl text-pretty text-lg leading-relaxed text-muted">
+                <p className="max-w-2xl text-pretty text-base sm:text-lg leading-relaxed text-muted">
                   {PROFILE.summary}
                 </p>
               </RevealItem>
@@ -84,7 +84,7 @@ export default function HomePage() {
               </RevealItem>
             </Reveal>
 
-            <Reveal variant="scale" delay={0.4} className="lg:block">
+            <Reveal variant="scale" delay={0.4} className="hidden lg:block">
               <Parallax offset={30}>
                 <Card className="overflow-hidden border-brand/10 bg-card/40 backdrop-blur-xl">
                   <div className="aspect-[4/3] relative">
@@ -203,8 +203,8 @@ export default function HomePage() {
       <Section id="education" title="Academic Background">
         <Reveal variant="scale">
           <Card className="p-8 bg-card/30 border-brand/5 overflow-hidden relative">
-            <div className="absolute top-0 right-0 p-8 text-brand/10">
-              <div className="text-8xl font-black">{PROFILE.education.years.split("-")[1]}</div>
+            <div className="absolute top-0 right-0 p-4 sm:p-8 text-brand/10">
+              <div className="text-6xl sm:text-8xl font-black">{PROFILE.education.years.split("-")[1]}</div>
             </div>
             <div className="relative z-10">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -223,8 +223,8 @@ export default function HomePage() {
 
       <Section id="contact" title="Get in Touch" subtitle="Let's build something amazing together.">
         <Reveal variant="slide-up">
-          <Card className="p-10 bg-gradient-to-br from-card/80 to-card/40 border-brand/10 text-center">
-            <h3 className="text-3xl font-bold">Have a project in mind?</h3>
+          <Card className="p-6 sm:p-10 bg-gradient-to-br from-card/80 to-card/40 border-brand/10 text-center">
+            <h3 className="text-2xl sm:text-3xl font-bold">Have a project in mind?</h3>
             <p className="mt-4 text-muted max-w-xl mx-auto">
               I'm always open to discussing platform engineering, backend architecture, or GenAI integrations.
             </p>

@@ -19,10 +19,10 @@ export function ExperienceTimeline() {
         style={{ scaleY: scrollYProgress }}
       />
 
-      <Reveal staggerChildren={0.15} className="grid gap-12 pl-12">
+      <Reveal staggerChildren={0.15} className="grid gap-12 pl-8 sm:pl-12">
         {PROFILE.experience.map((e, idx) => (
           <RevealItem key={`${e.company}-${e.role}-${e.period}`} className="relative">
-            <div className="absolute -left-[2.75rem] top-7 h-4 w-4 rounded-full border-2 border-brand bg-card shadow-glow" />
+            <div className="absolute -left-[1.75rem] sm:-left-[2.75rem] top-7 h-4 w-4 rounded-full border-2 border-brand bg-card shadow-glow" />
             <Card className="p-8 bg-card/40 border-border/50 hover:border-brand/30 transition-all">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
