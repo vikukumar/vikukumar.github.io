@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { PROFILE } from "@/data/profile";
 import { buildDashboard, fetchGitHubEvents, fetchGitHubRepos, fetchGitHubUser, fetchRepoLanguages, type GitHubDashboard } from "@/lib/github";
 import { Reveal, RevealItem } from "@/components/reveal";
-import { FaGithub, FaStar, FaCodeFork, FaFire } from "react-icons/fa6";
+import { FaGithub, FaStar, FaCodeFork, FaFire, FaCodeCommit, FaCircleExclamation, FaCodePullRequest, FaBookOpen } from "react-icons/fa6";
 import { motion } from "framer-motion";
 
 type LoadState =
@@ -50,9 +50,11 @@ export function GitHubStats() {
         
         const data = buildDashboard(
           json.user, 
-          json.repos, 
-          json.events, 
-          json.detailedLangs
+          json.repos || [], 
+          json.events || [], 
+          json.detailedLangs || [],
+          json.exactStats,
+          json.languages
         );
         
         if (!cancelled) setState({ status: "ready", data });
@@ -65,7 +67,7 @@ export function GitHubStats() {
             fetchGitHubRepos(username),
             fetchGitHubEvents(username)
           ]);
-          const data = buildDashboard(user, repos, events, []);
+          const data = buildDashboard(user, repos, events, [], undefined, undefined);
           if (!cancelled) setState({ status: "ready", data });
         } catch (innerErr) {
           if (!cancelled) setState({ status: "error", message: "Unable to sync GitHub stats" });
@@ -166,9 +168,12 @@ export function GitHubStats() {
 
       {/* 2. Main Stats Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard label="Total Stars" value={data.totals.stars} icon={FaStar} colorClass="text-yellow-400" />
-        <StatCard label="Total PRs" value={data.events.filter(e => e.type === "PullRequestEvent").length + 5} icon={FaCodeFork} colorClass="text-brand" />
-        <StatCard label="Followers" value={data.user.followers} icon={FaGithub} colorClass="text-fg" />
+        <StatCard label="Total Stars Earned" value={data.exactStats?.totalStars ?? data.totals.stars} icon={FaStar} colorClass="text-yellow-400" />
+        <StatCard label="Total Commits (last year)" value={data.exactStats?.totalCommitsLastYear ?? "-"} icon={FaCodeCommit} colorClass="text-emerald-400" />
+        <StatCard label="Total PRs" value={data.exactStats?.totalPRs ?? data.events.filter(e => e.type === "PullRequestEvent").length} icon={FaCodePullRequest} colorClass="text-brand" />
+        <StatCard label="Total Issues" value={data.exactStats?.totalIssues ?? "-"} icon={FaCircleExclamation} colorClass="text-rose-400" />
+        <StatCard label="Contributed to (last year)" value={data.exactStats?.contributedToLastYear ?? "-"} icon={FaBookOpen} colorClass="text-violet-400" />
+        <StatCard label="Followers" value={data.totals.totalFollowers} icon={FaGithub} colorClass="text-fg" />
       </div>
 
       {/* 3. Streaks */}
@@ -177,8 +182,8 @@ export function GitHubStats() {
           <div className="grid md:grid-cols-3 gap-12 items-center text-center">
             <div className="space-y-2">
               <div className="text-5xl font-black tracking-tighter text-fg">{data.streak.total.toLocaleString()}</div>
-              <div className="text-sm font-bold text-brand uppercase tracking-widest">Combined Contributions</div>
-              <div className="text-xs text-muted">Public, Private & Orgs • 2018 - Present</div>
+              <div className="text-sm font-bold text-brand uppercase tracking-widest">Total Contributions</div>
+              <div className="text-xs text-muted">{data.streak.range.start} - Present</div>
             </div>
 
             <div className="relative flex flex-col items-center">
@@ -201,7 +206,7 @@ export function GitHubStats() {
                 </svg>
                 <div className="text-4xl font-black text-fg">{data.streak.current}</div>
               </div>
-              <div className="mt-4 text-sm font-bold text-violet-400 uppercase tracking-widest">Active Streak</div>
+              <div className="mt-4 text-sm font-bold text-violet-400 uppercase tracking-widest">Current Streak</div>
               <div className="text-xs text-muted">Recent consistency</div>
             </div>
 

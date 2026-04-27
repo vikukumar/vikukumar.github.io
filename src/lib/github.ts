@@ -43,8 +43,22 @@ export type GitHubEvent = {
   payload?: Record<string, unknown>;
 };
 
+export type GitHubExactStats = {
+  totalStars: number;
+  totalCommitsLastYear: number;
+  totalPRs: number;
+  totalIssues: number;
+  contributedToLastYear: number;
+  totalContributionsAllTime: number;
+  currentStreak: number;
+  longestStreak: number;
+  followers: number;
+  createdAt: string;
+};
+
 export type GitHubDashboard = {
   user: GitHubUser;
+  exactStats?: GitHubExactStats;
   orgs: Array<{ login: string; avatar_url: string }>;
   totals: {
     stars: number;
@@ -204,7 +218,9 @@ export function buildDashboard(
   user: GitHubUser,
   repos: GitHubRepo[],
   events: GitHubEvent[],
-  detailedLanguages: Array<Record<string, number>> = []
+  detailedLanguages: Array<Record<string, number>> = [],
+  exactStats?: GitHubExactStats,
+  precalculatedLanguages?: Array<{ name: string; percentage: number; color: string; count: number; size: number }>
 ): GitHubDashboard {
   const activeRepos = repos.filter((r) => !r.fork && !r.archived);
 
@@ -278,19 +294,38 @@ export function buildDashboard(
     Lua: "#000080"
   };
 
-  const languages = [...langMap.entries()]
-    .map(([name, v]) => ({
-      name,
-      percentage: activeRepos.length > 0 ? (v.count / activeRepos.length) * 100 : 0,
-      count: v.count,
-      color: languageColors[name] || "#60a5fa"
-    }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 30);
+  let languages = precalculatedLanguages;
+  if (!languages) {
+    languages = [...langMap.entries()]
+      .map(([name, v]) => ({
+        name,
+        percentage: activeRepos.length > 0 ? (v.count / activeRepos.length) * 100 : 0,
+        count: v.count,
+        size: v.size,
+        color: languageColors[name] || "#60a5fa"
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 30);
+  } else {
+    const totalSize = languages.reduce((acc, l) => acc + (l.size || 0), 0);
+    languages = languages.map(l => ({
+      ...l,
+      percentage: totalSize > 0 ? ((l.size || 0) / totalSize) * 100 : 0,
+      color: l.color || languageColors[l.name] || "#60a5fa"
+    })).slice(0, 30);
+  }
 
-  // Streak Estimation (Combined Contributions)
-  const streak = {
-    total: user.public_repos * 15 + user.followers * 10 + stars * 5 + 450,
+  // Streak using exact stats if available, otherwise fallback to reasonable estimate
+  const streak = exactStats ? {
+    total: exactStats.totalContributionsAllTime,
+    current: exactStats.currentStreak,
+    longest: exactStats.longestStreak,
+    range: {
+      start: new Date(exactStats.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
+      end: "Present"
+    }
+  } : {
+    total: user.public_repos * 15 + user.followers * 10 + stars * 5 + 450, // Fallback
     current: events.length > 0 ? Math.min(events.length + 5, 30) : 0,
     longest: Math.max(30, events.length + 10),
     range: {
@@ -338,14 +373,15 @@ export function buildDashboard(
 
   return {
     user,
+    exactStats,
     orgs: [],
     totals: {
-      stars,
+      stars: exactStats?.totalStars ?? stars,
       forks,
       watchers,
       reposScanned: activeRepos.length,
       totalPublicRepos: user.public_repos,
-      totalFollowers: user.followers
+      totalFollowers: exactStats?.followers ?? user.followers
     },
     topRepos,
     highlights: {
