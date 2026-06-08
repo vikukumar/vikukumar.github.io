@@ -20,6 +20,117 @@ async function fetchGraphQL(query, variables = {}) {
   return res.json();
 }
 
+async function fetchJson(url, headers = {}) {
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    throw new Error(`Fetch failed: ${res.status} ${res.statusText} (${url})`);
+  }
+  return res.json();
+}
+
+function calculateContributionStats(days) {
+  const sortedDays = [...days].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const todayStr = new Date().toISOString().split('T')[0];
+  let totalContributions = 0;
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let currentStreakTemp = 0;
+
+  for (const day of sortedDays) {
+    totalContributions += day.contributionCount;
+    if (day.contributionCount > 0) {
+      currentStreakTemp++;
+      longestStreak = Math.max(longestStreak, currentStreakTemp);
+    } else if (day.date !== todayStr && new Date(day.date) < new Date(todayStr)) {
+      currentStreakTemp = 0;
+    }
+
+    if (day.date === todayStr) {
+      currentStreak = currentStreakTemp;
+      break;
+    }
+  }
+
+  if (currentStreak === 0 && currentStreakTemp > 0) {
+    currentStreak = currentStreakTemp;
+  }
+
+  return { sortedDays, totalContributions, currentStreak, longestStreak };
+}
+
+function writeData(data) {
+  const outDir = path.join(process.cwd(), 'public');
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
+
+  fs.writeFileSync(
+    path.join(outDir, 'github-data.json'),
+    JSON.stringify(data, null, 2)
+  );
+}
+
+async function fetchFallbackData(headers) {
+  console.log("Falling back to public REST data...");
+
+  const [user, repos, events, contributions] = await Promise.all([
+    fetchJson(`https://api.github.com/users/${username}`, headers),
+    fetchJson(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, headers),
+    fetchJson(`https://api.github.com/users/${username}/events/public?per_page=30`, headers).catch(() => []),
+    fetchJson(`https://github-contributions-api.jogruber.de/v4/${username}`).catch(() => ({ contributions: [] }))
+  ]);
+
+  const activeRepos = repos.filter((r) => !r.fork && !r.archived);
+  const totalStars = activeRepos.reduce((sum, r) => sum + (r.stargazers_count || 0), 0);
+  const contributionDays = (contributions.contributions || []).map((day) => ({
+    date: day.date,
+    contributionCount: day.count || 0
+  }));
+  const contributionStats = calculateContributionStats(contributionDays);
+
+  const languageRepos = activeRepos.slice(0, 30);
+  const detailedLangs = await Promise.all(
+    languageRepos.map((repo) =>
+      fetchJson(`https://api.github.com/repos/${repo.full_name}/languages`, headers).catch(() => ({}))
+    )
+  );
+
+  const langMap = new Map();
+  detailedLangs.forEach((repoLangs) => {
+    Object.entries(repoLangs).forEach(([name, size]) => {
+      const prev = langMap.get(name) || { size: 0, count: 0, color: undefined };
+      langMap.set(name, { size: prev.size + size, count: prev.count + 1, color: prev.color });
+    });
+  });
+
+  const languages = Array.from(langMap.entries())
+    .map(([name, val]) => ({ name, ...val }))
+    .sort((a, b) => b.size - a.size);
+
+  return {
+    exactStats: {
+      totalStars,
+      totalCommitsLastYear: contributionDays
+        .filter((day) => new Date(`${day.date}T00:00:00`).getFullYear() === new Date().getFullYear())
+        .reduce((sum, day) => sum + day.contributionCount, 0),
+      totalPRs: events.filter((event) => event.type === "PullRequestEvent").length,
+      totalIssues: events.filter((event) => event.type === "IssuesEvent").length,
+      contributedToLastYear: new Set(events.map((event) => event.repo?.name).filter(Boolean)).size,
+      totalContributionsAllTime: contributionStats.totalContributions,
+      currentStreak: contributionStats.currentStreak,
+      longestStreak: contributionStats.longestStreak,
+      followers: user.followers,
+      createdAt: user.created_at,
+      contributionDays: contributionStats.sortedDays
+    },
+    languages,
+    repos: activeRepos,
+    detailedLangs,
+    events,
+    user,
+    updatedAt: new Date().toISOString(),
+    source: "public-fallback"
+  };
+}
+
 async function fetchAll() {
   const headers = {
     Accept: "application/vnd.github+json",
@@ -104,41 +215,7 @@ async function fetchAll() {
       }
     }
 
-    // Sort days chronologically
-    allDays.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    // Calculate Streak & Total Contributions
-    let totalContributions = 0;
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let currentStreakTemp = 0;
-    
-    const todayStr = new Date().toISOString().split('T')[0];
-
-    for (const day of allDays) {
-      totalContributions += day.contributionCount;
-      if (day.contributionCount > 0) {
-        currentStreakTemp++;
-        longestStreak = Math.max(longestStreak, currentStreakTemp);
-      } else {
-        // Break the streak unless it's today and today has no contributions (yet)
-        if (day.date !== todayStr && new Date(day.date) < new Date(todayStr)) {
-          currentStreakTemp = 0;
-        }
-      }
-      
-      if (day.date === todayStr) {
-        // If we reached today, the current streak is the temp streak
-        currentStreak = currentStreakTemp;
-        // Optimization: stop iterating after today
-        break;
-      }
-    }
-    
-    // Fallback if today's date wasn't hit perfectly
-    if (currentStreak === 0 && currentStreakTemp > 0) {
-      currentStreak = currentStreakTemp;
-    }
+    const contributionStats = calculateContributionStats(allDays);
 
     // Process Repos for Top Stars & Languages
     const activeRepos = user.repositories.nodes;
@@ -158,6 +235,30 @@ async function fetchAll() {
       .map(([name, val]) => ({ name, ...val }))
       .sort((a, b) => b.size - a.size);
       
+    const repos = activeRepos.map((r, index) => ({
+      id: index + 1,
+      name: r.name,
+      full_name: `${username}/${r.name}`,
+      html_url: `https://github.com/${username}/${r.name}`,
+      description: null,
+      fork: false,
+      archived: false,
+      stargazers_count: r.stargazerCount || 0,
+      watchers_count: r.stargazerCount || 0,
+      forks_count: r.forkCount || 0,
+      open_issues_count: 0,
+      language: r.primaryLanguage?.name || null,
+      size: Math.max(1, Math.round((r.languages.edges.reduce((sum, e) => sum + e.size, 0) || 1024) / 1024)),
+      pushed_at: r.pushedAt,
+      updated_at: r.pushedAt,
+      homepage: null,
+      topics: []
+    }));
+
+    const detailedLangs = activeRepos.map((r) => Object.fromEntries(
+      r.languages.edges.map((e) => [e.node.name, e.size])
+    ));
+
     // Create the exact data payload
     const data = {
       exactStats: {
@@ -166,14 +267,16 @@ async function fetchAll() {
         totalPRs: prsCount,
         totalIssues: issuesCount,
         contributedToLastYear: user.contributionsCollection.totalRepositoriesWithContributedCommits,
-        totalContributionsAllTime: totalContributions,
-        currentStreak,
-        longestStreak,
+        totalContributionsAllTime: contributionStats.totalContributions,
+        currentStreak: contributionStats.currentStreak,
+        longestStreak: contributionStats.longestStreak,
         followers: user.followers.totalCount,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
+        contributionDays: contributionStats.sortedDays
       },
       languages,
-      repos: activeRepos, // We might still need some repo details
+      repos,
+      detailedLangs,
       updatedAt: new Date().toISOString()
     };
 
@@ -193,18 +296,19 @@ async function fetchAll() {
       data.user = {};
     }
 
-    const outDir = path.join(process.cwd(), 'public');
-    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
-    
-    fs.writeFileSync(
-      path.join(outDir, 'github-data.json'),
-      JSON.stringify(data, null, 2)
-    );
+    writeData(data);
 
     console.log("GitHub precise data saved to public/github-data.json");
   } catch (error) {
     console.error("Failed to fetch GitHub data:", error);
-    process.exit(1);
+    try {
+      const fallbackData = await fetchFallbackData(headers);
+      writeData(fallbackData);
+      console.log("GitHub fallback data saved to public/github-data.json");
+    } catch (fallbackError) {
+      console.error("Failed to fetch fallback GitHub data:", fallbackError);
+      process.exit(1);
+    }
   }
 }
 

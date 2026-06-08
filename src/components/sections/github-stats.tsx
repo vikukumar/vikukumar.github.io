@@ -1,14 +1,13 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PROFILE } from "@/data/profile";
-import { buildDashboard, fetchGitHubEvents, fetchGitHubRepos, fetchGitHubUser, fetchRepoLanguages, type GitHubDashboard } from "@/lib/github";
+import { buildDashboard, fetchGitHubEvents, fetchGitHubRepos, fetchGitHubUser, type GitHubDashboard } from "@/lib/github";
 import { Reveal, RevealItem } from "@/components/reveal";
-import { FaGithub, FaStar, FaCodeFork, FaFire, FaCodeCommit, FaCircleExclamation, FaCodePullRequest, FaBookOpen } from "react-icons/fa6";
+import { FaGithub, FaStar, FaFire, FaCodeCommit, FaCircleExclamation, FaCodePullRequest, FaBookOpen } from "react-icons/fa6";
+import type { IconType } from "react-icons";
 import { motion } from "framer-motion";
 
 type LoadState =
@@ -16,7 +15,7 @@ type LoadState =
   | { status: "ready"; data: GitHubDashboard }
   | { status: "error"; message: string };
 
-function StatCard({ label, value, icon: Icon, colorClass = "text-brand" }: { label: string; value: string | number; icon: any; colorClass?: string }) {
+function StatCard({ label, value, icon: Icon, colorClass = "text-brand" }: { label: string; value: string | number; icon: IconType; colorClass?: string }) {
   return (
     <RevealItem>
       <Card className="group relative overflow-hidden p-6 bg-card/40 border-border/50 hover:border-brand/30 transition-all duration-300">
@@ -69,7 +68,7 @@ export function GitHubStats() {
           ]);
           const data = buildDashboard(user, repos, events, [], undefined, undefined);
           if (!cancelled) setState({ status: "ready", data });
-        } catch (innerErr) {
+        } catch {
           if (!cancelled) setState({ status: "error", message: "Unable to sync GitHub stats" });
         }
       }
@@ -79,6 +78,11 @@ export function GitHubStats() {
   }, [username]);
 
   const data = useMemo(() => (state.status === "ready" ? state.data : null), [state]);
+  const chartData = useMemo(() => {
+    if (!data) return [];
+    return activeTab === "year" ? data.activityChart : data.monthlyActivityChart;
+  }, [activeTab, data]);
+  const chartMax = useMemo(() => Math.max(1, ...chartData.map((item) => item.value)), [chartData]);
 
   if (state.status === "loading") {
     return (
@@ -244,14 +248,20 @@ export function GitHubStats() {
           </div>
 
           <div className="h-64 w-full flex items-end gap-1 sm:gap-2 px-1">
-            {data.activityChart.map((item, idx) => (
+            {chartData.map((item, idx) => {
+              const height = item.value > 0 ? Math.max(8, (item.value / chartMax) * 100) : 2;
+              return (
               <div key={item.label} className="flex-1 flex flex-col items-center gap-4 group">
                 <div className="relative w-full flex justify-center items-end h-full">
                   <motion.div
                     initial={{ height: 0 }}
-                    animate={{ height: `${(item.value / 70) * 100}%` }}
+                    animate={{ height: `${height}%` }}
                     transition={{ duration: 1, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full max-w-[32px] rounded-t-lg bg-gradient-to-t from-brand/20 via-brand/40 to-brand group-hover:to-violet-400 transition-colors"
+                    className="w-full max-w-[32px] rounded-t-lg transition-colors"
+                    style={{
+                      background: "linear-gradient(to top, rgba(var(--brand), 0.28), rgba(var(--brand), 0.72), rgb(var(--brand)))",
+                      boxShadow: item.value > 0 ? "0 10px 28px rgba(var(--brand), 0.18)" : "none"
+                    }}
                   />
                   <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-brand">
                     {item.value}
@@ -259,7 +269,7 @@ export function GitHubStats() {
                 </div>
                 <span className="text-[10px] font-bold text-muted uppercase tracking-tighter">{item.label}</span>
               </div>
-            ))}
+            )})}
           </div>
         </Card>
       </Reveal>

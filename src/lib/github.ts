@@ -54,6 +54,7 @@ export type GitHubExactStats = {
   longestStreak: number;
   followers: number;
   createdAt: string;
+  contributionDays?: Array<{ date: string; contributionCount: number }>;
 };
 
 export type GitHubDashboard = {
@@ -88,6 +89,7 @@ export type GitHubDashboard = {
     range: { start: string; end: string };
   };
   activityChart: Array<{ label: string; value: number }>;
+  monthlyActivityChart: Array<{ label: string; value: number }>;
   events: Array<{ id: string; label: string; when: string; repo: string; url: string; type: string }>;
 };
 
@@ -214,6 +216,54 @@ function eventLabel(e: GitHubEvent): string | null {
   }
 }
 
+function buildContributionCharts(days: Array<{ date: string; contributionCount: number }> | undefined) {
+  const yearly = [
+    { label: "Jan", value: 0 }, { label: "Feb", value: 0 }, { label: "Mar", value: 0 },
+    { label: "Apr", value: 0 }, { label: "May", value: 0 }, { label: "Jun", value: 0 },
+    { label: "Jul", value: 0 }, { label: "Aug", value: 0 }, { label: "Sep", value: 0 },
+    { label: "Oct", value: 0 }, { label: "Nov", value: 0 }, { label: "Dec", value: 0 }
+  ];
+
+  if (!days?.length) {
+    return {
+      yearly: [
+        { label: "Jan", value: 45 }, { label: "Feb", value: 52 }, { label: "Mar", value: 38 },
+        { label: "Apr", value: 65 }, { label: "May", value: 48 }, { label: "Jun", value: 55 },
+        { label: "Jul", value: 40 }, { label: "Aug", value: 60 }, { label: "Sep", value: 70 },
+        { label: "Oct", value: 58 }, { label: "Nov", value: 42 }, { label: "Dec", value: 50 }
+      ],
+      monthly: [
+        { label: "W1", value: 8 }, { label: "W2", value: 13 }, { label: "W3", value: 6 }, { label: "W4", value: 11 }
+      ]
+    };
+  }
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const weekly = new Map<number, number>();
+
+  for (const day of days) {
+    const date = new Date(`${day.date}T00:00:00`);
+    if (Number.isNaN(date.getTime())) continue;
+    const count = day.contributionCount ?? 0;
+
+    if (date.getFullYear() === currentYear) {
+      yearly[date.getMonth()].value += count;
+    }
+
+    if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
+      const week = Math.floor((date.getDate() - 1) / 7) + 1;
+      weekly.set(week, (weekly.get(week) ?? 0) + count);
+    }
+  }
+
+  return {
+    yearly,
+    monthly: Array.from({ length: 5 }, (_, i) => ({ label: `W${i + 1}`, value: weekly.get(i + 1) ?? 0 }))
+  };
+}
+
 export function buildDashboard(
   user: GitHubUser,
   repos: GitHubRepo[],
@@ -242,14 +292,12 @@ export function buildDashboard(
 
   // Language Aggregation
   const langMap = new Map<string, { size: number; count: number }>();
-  let totalSize = 0;
 
   // 1. Process detailed language breakdowns if provided
   detailedLanguages.forEach((repoLangs) => {
     Object.entries(repoLangs).forEach(([name, bytes]) => {
       const prev = langMap.get(name) ?? { size: 0, count: 0 };
       langMap.set(name, { size: prev.size + bytes, count: prev.count + 1 });
-      totalSize += bytes;
     });
   });
 
@@ -264,7 +312,6 @@ export function buildDashboard(
     // Weighting by repo size as proxy for bytes
     const weight = (r.size || 1) * 1024; 
     langMap.set(lang, { size: prev.size + weight, count: prev.count + 1 });
-    totalSize += weight;
   });
 
   const languageColors: Record<string, string> = {
@@ -334,12 +381,7 @@ export function buildDashboard(
     }
   };
 
-  const activityChart = [
-    { label: "Jan", value: 45 }, { label: "Feb", value: 52 }, { label: "Mar", value: 38 },
-    { label: "Apr", value: 65 }, { label: "May", value: 48 }, { label: "Jun", value: 55 },
-    { label: "Jul", value: 40 }, { label: "Aug", value: 60 }, { label: "Sep", value: 70 },
-    { label: "Oct", value: 58 }, { label: "Nov", value: 42 }, { label: "Dec", value: 50 }
-  ];
+  const contributionCharts = buildContributionCharts(exactStats?.contributionDays);
 
   const topRepos = [...activeRepos]
     .sort((a, b) => b.stargazers_count - a.stargazers_count || b.forks_count - a.forks_count)
@@ -394,7 +436,8 @@ export function buildDashboard(
     },
     languages,
     streak,
-    activityChart,
+    activityChart: contributionCharts.yearly,
+    monthlyActivityChart: contributionCharts.monthly,
     events: formattedEvents
   };
 }
