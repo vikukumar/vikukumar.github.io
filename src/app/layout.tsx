@@ -3,7 +3,6 @@ import "./globals.css";
 import { LenisProvider } from "@/components/lenis-provider";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { SiteNav } from "@/components/site-nav";
-import { Starfield } from "@/components/starfield";
 import { SITE } from "@/data/site";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeScript } from "@/components/theme/theme-script";
@@ -75,7 +74,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="relative">
               <ScrollScene />
               <CursorGlow />
-              <Starfield />
               <ScrollProgress />
               <SiteNav />
               {children}
