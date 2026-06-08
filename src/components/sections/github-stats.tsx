@@ -247,20 +247,20 @@ export function GitHubStats() {
             </div>
           </div>
 
-          <div className="h-64 w-full flex items-end gap-1 sm:gap-2 px-1">
+          <div className="h-64 w-full flex items-stretch gap-1 sm:gap-2 px-1">
             {chartData.map((item, idx) => {
               const height = item.value > 0 ? Math.max(8, (item.value / chartMax) * 100) : 2;
               return (
-              <div key={item.label} className="flex-1 flex flex-col items-center gap-4 group">
-                <div className="relative w-full flex justify-center items-end h-full">
+              <div key={item.label} className="grid h-full flex-1 grid-rows-[1fr_auto] items-end gap-4 group">
+                <div className="relative flex h-full min-h-0 w-full items-end justify-center">
                   <motion.div
                     initial={{ height: 0 }}
                     animate={{ height: `${height}%` }}
                     transition={{ duration: 1, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full max-w-[32px] rounded-t-lg transition-colors"
+                    className="w-full max-w-[32px] rounded-t-lg bg-brand shadow-[0_10px_28px_rgb(var(--brand)/0.18)] transition-colors"
                     style={{
-                      background: "linear-gradient(to top, rgba(var(--brand), 0.28), rgba(var(--brand), 0.72), rgb(var(--brand)))",
-                      boxShadow: item.value > 0 ? "0 10px 28px rgba(var(--brand), 0.18)" : "none"
+                      background: "linear-gradient(to top, rgb(var(--brand) / 0.28), rgb(var(--brand) / 0.72), rgb(var(--brand)))",
+                      boxShadow: item.value > 0 ? "0 10px 28px rgb(var(--brand) / 0.18)" : "none"
                     }}
                   />
                   <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-brand">
