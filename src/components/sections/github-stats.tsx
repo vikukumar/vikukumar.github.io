@@ -15,6 +15,8 @@ type LoadState =
   | { status: "ready"; data: GitHubDashboard }
   | { status: "error"; message: string };
 
+const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 function StatCard({ label, value, icon: Icon, colorClass = "text-brand" }: { label: string; value: string | number; icon: IconType; colorClass?: string }) {
   return (
     <RevealItem>
@@ -29,6 +31,18 @@ function StatCard({ label, value, icon: Icon, colorClass = "text-brand" }: { lab
           </div>
         </div>
       </Card>
+    </RevealItem>
+  );
+}
+
+function RecruiterSignal({ label, value, detail }: { label: string; value: string | number; detail: string }) {
+  return (
+    <RevealItem>
+      <div className="rounded-2xl border border-white/5 bg-white/[0.04] p-5 transition-all hover:border-brand/25 hover:bg-brand/[0.06]">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-muted">{label}</div>
+        <div className="mt-3 text-2xl font-black tracking-tight text-fg">{value}</div>
+        <div className="mt-2 text-xs font-medium leading-relaxed text-muted">{detail}</div>
+      </div>
     </RevealItem>
   );
 }
@@ -83,6 +97,44 @@ export function GitHubStats() {
     return activeTab === "year" ? data.activityChart : data.monthlyActivityChart;
   }, [activeTab, data]);
   const chartMax = useMemo(() => Math.max(1, ...chartData.map((item) => item.value)), [chartData]);
+  const recruiterSignals = useMemo(() => {
+    if (!data) return null;
+
+    const contributionDays = data.exactStats?.contributionDays ?? [];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    const currentYearDays = contributionDays.filter((day) => {
+      const date = new Date(`${day.date}T00:00:00`);
+      return !Number.isNaN(date.getTime()) && date.getFullYear() === currentYear;
+    });
+    const activeDays = currentYearDays.filter((day) => day.contributionCount > 0).length;
+    const elapsedDays = Math.max(1, Math.floor((now.getTime() - new Date(currentYear, 0, 1).getTime()) / 86400000) + 1);
+    const contributionTotal = currentYearDays.reduce((sum, day) => sum + day.contributionCount, 0);
+    const avgWeekly = Math.round((contributionTotal / elapsedDays) * 7);
+    const peakMonth = data.activityChart.reduce((best, item) => item.value > best.value ? item : best, data.activityChart[0] ?? { label: "-", value: 0 });
+    const activeReposThisYear = data.topRepos.filter((repo) => {
+      if (!repo.pushedAt) return false;
+      const pushedAt = new Date(repo.pushedAt);
+      return !Number.isNaN(pushedAt.getTime()) && pushedAt.getFullYear() === currentYear;
+    }).length;
+    const thisMonthTotal = currentYearDays.reduce((sum, day) => {
+      const date = new Date(`${day.date}T00:00:00`);
+      return date.getMonth() === currentMonth ? sum + day.contributionCount : sum;
+    }, 0);
+    const consistency = Math.round((activeDays / elapsedDays) * 100);
+    const topLanguage = data.languages[0];
+
+    return {
+      avgWeekly,
+      activeDays,
+      peakMonth,
+      activeReposThisYear,
+      thisMonthTotal,
+      consistency,
+      topLanguage
+    };
+  }, [data]);
 
   if (state.status === "loading") {
     return (
@@ -180,7 +232,57 @@ export function GitHubStats() {
         <StatCard label="Followers" value={data.totals.totalFollowers} icon={FaGithub} colorClass="text-fg" />
       </div>
 
-      {/* 3. Streaks */}
+      {/* 3. Recruiter Signals */}
+      {recruiterSignals && (
+        <Reveal variant="slide-up" delay={0.1} staggerChildren={0.05}>
+          <div className="rounded-[1.5rem] sm:rounded-[2.5rem] border border-brand/10 bg-card/30 p-5 sm:p-8">
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h4 className="text-xl font-bold">Snapshots</h4>
+                <p className="mt-1 text-sm text-muted">Fast-read proof of consistency, ownership, and technical range.</p>
+              </div>
+              <Badge variant="outline" className="w-fit text-[10px] uppercase tracking-widest">
+                {new Date().getFullYear()} snapshot
+              </Badge>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <RecruiterSignal
+                label="Shipping Velocity"
+                value={`${recruiterSignals.avgWeekly}/wk`}
+                detail="Average contribution pace across the current year."
+              />
+              <RecruiterSignal
+                label="Active Coding Days"
+                value={recruiterSignals.activeDays}
+                detail={`${recruiterSignals.consistency}% consistency across elapsed days this year.`}
+              />
+              <RecruiterSignal
+                label="Peak Output Month"
+                value={recruiterSignals.peakMonth.label}
+                detail={`${recruiterSignals.peakMonth.value.toLocaleString()} contributions in the strongest month.`}
+              />
+              <RecruiterSignal
+                label="Primary Stack"
+                value={recruiterSignals.topLanguage?.name ?? "Multi-stack"}
+                detail={recruiterSignals.topLanguage ? `${recruiterSignals.topLanguage.percentage.toFixed(1)}% of measured code volume.` : "Broad repository language coverage."}
+              />
+              <RecruiterSignal
+                label="Active Repos"
+                value={recruiterSignals.activeReposThisYear || data.totals.reposScanned}
+                detail="Recently maintained repositories visible in the portfolio scan."
+              />
+              <RecruiterSignal
+                label={`${MONTH_LABELS[new Date().getMonth()]} Momentum`}
+                value={recruiterSignals.thisMonthTotal}
+                detail="Current-month contributions, refreshed from local GitHub data."
+              />
+            </div>
+          </div>
+        </Reveal>
+      )}
+
+      {/* 4. Streaks */}
       <Reveal variant="scale" delay={0.2}>
         <Card className="bg-card/40 border-brand/5 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden p-6 sm:p-10">
           <div className="grid md:grid-cols-3 gap-12 items-center text-center">
@@ -223,7 +325,7 @@ export function GitHubStats() {
         </Card>
       </Reveal>
 
-      {/* 4. Analytics Activity Chart */}
+      {/* 5. Analytics Activity Chart */}
       <Reveal variant="slide-up" delay={0.3}>
         <Card className="p-5 sm:p-10 bg-card/30 border-brand/5 rounded-[1.5rem] sm:rounded-[2.5rem]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
@@ -274,7 +376,7 @@ export function GitHubStats() {
         </Card>
       </Reveal>
 
-      {/* 5. Recent Activity Only */}
+      {/* 6. Recent Activity Only */}
       <RevealItem>
         <div className="rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 bg-white/5 p-6 sm:p-10">
           <h4 className="text-lg font-bold mb-8">Recent Repository Activity</h4>
