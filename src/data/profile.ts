@@ -3,7 +3,7 @@ export const PROFILE = {
   headline:
     "Consultant at Microsoft (Cloud & AI) — AI gateways, API platforms (Kong/Akana/Apigee), Kubernetes/DevSecOps, and LLM-enabled automation. Ex-Infosys.",
   summary:
-    "I design and build secure, scalable backend and platform systems across telecom and financial domains — from microservices and API governance to Kubernetes operations and automation. At Microsoft, I partner with enterprises to architect and deploy production-grade GenAI and cloud platforms, building on 5 years of Infosys experience in GenAI integration (RAG, prompt engineering, fine-tuning workflows) and developer-platform engineering.",
+    "AI Platform Engineer and Cloud & AI Consultant at Microsoft, partnering with enterprises to architect and deploy production-grade GenAI and cloud platforms. Over 5 years at Infosys (Systems Engineer to Technology Analyst), I built the backend and platform foundations behind them — FastAPI microservices, API gateways (Kong/Akana/Apigee), Kubernetes, DevSecOps, and LLM-enabled automation (RAG, prompt engineering, fine-tuning) across telecom, finance, and education.",
   location: "Noida, India",
   email: "vikashkumar0037@gmail.com",
   phone: "",
@@ -18,20 +18,22 @@ export const PROFILE = {
   },
   highlights: [
     { label: "Experience", value: "5+ years (Microsoft, Infosys)" },
-    { label: "Focus", value: "Python + Nextjs + API platforms + Kubernetes" },
-    { label: "GenAI", value: "RAG • Agents • Fine-tuning" }
+    { label: "GenAI", value: "RAG • Agents • Fine-tuning" },
+    { label: "Focus", value: "Python + Nextjs + API platforms + Kubernetes" }
   ],
   keywords: [
-    "Full-Stack Development",
-    "Frontend Development",
+    "AI Platform Engineering",
+    "GenAI Systems",
+    "LLM Automation",
+    "Cloud & AI Consulting",
     "Backend Engineering",
     "Platform Engineering",
     "API Platforms",
-    "Microservices",
     "API Gateways",
+    "Microservices",
     "Kubernetes",
     "DevSecOps",
-    "GenAI Systems"
+    "Full-Stack Development"
   ],
   skills: [
     {
