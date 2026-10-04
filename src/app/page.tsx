@@ -100,7 +100,7 @@ export default function HomePage() {
                     <div className="flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 backdrop-blur-2xl">
                       <div className="min-w-0">
                         <div className="truncate text-lg font-bold text-fg">{PROFILE.name}</div>
-                        <div className="truncate text-sm text-muted">Technology Analyst @ Infosys</div>
+                        <div className="truncate text-sm text-muted">Consultant @ Microsoft</div>
                       </div>
                     </div>
                     
