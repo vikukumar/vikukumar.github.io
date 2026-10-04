@@ -1,15 +1,15 @@
 export const PROFILE = {
   name: "Vikash Kumar",
   headline:
-    "Senior Full Stack & AI Platform Developer (Infosys) — API gateways (Kong/Akana/Apigee), Kubernetes/DevSecOps, and LLM-enabled automation.",
+    "Consultant at Microsoft (Cloud & AI) — AI gateways, API platforms (Kong/Akana/Apigee), Kubernetes/DevSecOps, and LLM-enabled automation. Ex-Infosys.",
   summary:
-    "I design and build secure, scalable backend and platform systems across telecom and financial domains — from microservices and API governance to Kubernetes operations and automation. Recently, I’m focused on GenAI integration (RAG, prompt engineering, fine-tuning workflows) and developer-platform engineering.",
+    "I design and build secure, scalable backend and platform systems across telecom and financial domains — from microservices and API governance to Kubernetes operations and automation. At Microsoft, I partner with enterprises to architect and deploy production-grade GenAI and cloud platforms, building on 5 years of Infosys experience in GenAI integration (RAG, prompt engineering, fine-tuning workflows) and developer-platform engineering.",
   location: "Noida, India",
   email: "vikashkumar0037@gmail.com",
   phone: "",
   githubUsername: "vikukumar",
   avatarUrl: "https://github.com/vikukumar.png?size=240",
-  now: "Building platform + GenAI systems • Open to backend/platform/AI engineering roles",
+  now: "Consulting on Cloud & AI at Microsoft • Building platform + GenAI systems",
   links: {
     github: "https://github.com/vikukumar",
     linkedin: "https://linkedin.com/in/vikash-edude",
@@ -17,7 +17,7 @@ export const PROFILE = {
     resume: "/resume.pdf"
   },
   highlights: [
-    { label: "Experience", value: "5 years (Infosys)" },
+    { label: "Experience", value: "5+ years (Microsoft, Infosys)" },
     { label: "Focus", value: "Python + Nextjs + API platforms + Kubernetes" },
     { label: "GenAI", value: "RAG • Agents • Fine-tuning" }
   ],
@@ -86,15 +86,26 @@ export const PROFILE = {
   ],
   experience: [
     {
+      company: "Microsoft",
+      role: "Consultant",
+      period: "Sep 2026 – Present",
+      highlights: [
+        "Part of the Cloud & AI Solutions organization (Global Center for Innovation & Delivery), architecting and deploying production-grade AI and cloud platforms for enterprises.",
+        "Designing enterprise-ready Generative AI solutions, cognitive workflows, and distributed cloud systems aligned with architectural best practices.",
+        "Advising enterprise stakeholders and delivering rapid PoCs and reference architectures that translate business needs into secure, scalable solution blueprints.",
+        "Integrating backend microservices, API ecosystems, and automated deployment pipelines while driving cloud security, governance, performance, and responsible AI standards."
+      ]
+    },
+    {
       company: "Infosys Limited",
       role: "Technology Analyst",
-      period: "Oct 2024 – Present",
+      period: "Oct 2024 – Sep 2026",
       highlights: [
         "Architected AI-first API platforms integrating Generative AI and LLM workflows into enterprise systems.",
         "Designed high-performance microservices using Python (FastAPI) and Next.js across mortgage & telecom platforms.",
         "Engineered API gateway ecosystems (Kong, Akana, Apigee) with automated governance and traffic control.",
         "Implemented Kubernetes-based CI/CD pipelines improving deployment scalability and reliability.",
-        "Built LLM fine-tuning workflows using MongoDB datasets to automate API development processes."
+        "Fine-tuned LLMs on MongoDB datasets and built AI-powered internal tools for forecasting, operational intelligence, and platform observability."
       ]
     },
     {
