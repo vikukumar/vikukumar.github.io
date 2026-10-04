@@ -1,9 +1,9 @@
 export const PROFILE = {
   name: "Vikash Kumar",
   headline:
-    "Consultant at Microsoft (Cloud & AI) — AI gateways, API platforms (Kong/Akana/Apigee), Kubernetes/DevSecOps, and LLM-enabled automation. Ex-Infosys.",
+    "Cloud & AI Consultant at Microsoft • AI Platform Engineer • Full Stack Backend Engineer (ex-Infosys) — GenAI systems, AI gateways, API platforms, and Kubernetes/DevSecOps.",
   summary:
-    "AI Platform Engineer and Cloud & AI Consultant at Microsoft, partnering with enterprises to architect and deploy production-grade GenAI and cloud platforms. Over 5 years at Infosys (Systems Engineer to Technology Analyst), I built the backend and platform foundations behind them — FastAPI microservices, API gateways (Kong/Akana/Apigee), Kubernetes, DevSecOps, and LLM-enabled automation (RAG, prompt engineering, fine-tuning) across telecom, finance, and education.",
+    "AI Platform Engineer and Cloud & AI Consultant at Microsoft, partnering with enterprises to architect and deploy production-grade GenAI and cloud platforms. Over 5 years at Infosys (Systems Engineer to Technology Analyst), I worked as a full stack backend engineer building the platform foundations behind them — FastAPI microservices, Next.js/Angular apps, API gateways (Kong/Akana/Apigee), Kubernetes, DevSecOps, and LLM-enabled automation (RAG, prompt engineering, fine-tuning) across telecom, finance, and education.",
   location: "Noida, India",
   email: "vikashkumar0037@gmail.com",
   phone: "",
