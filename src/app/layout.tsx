@@ -3,6 +3,7 @@ import "./globals.css";
 import { LenisProvider } from "@/components/lenis-provider";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { SiteNav } from "@/components/site-nav";
+import { COMPANY_THEME } from "@/data/profile";
 import { SITE } from "@/data/site";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeScript } from "@/components/theme/theme-script";
@@ -64,7 +65,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html lang="en" className="scroll-smooth" data-company-theme={COMPANY_THEME} suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>

@@ -9,7 +9,7 @@ import { Parallax } from "@/components/parallax";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Card } from "@/components/ui/card";
-import { PROFILE } from "@/data/profile";
+import { CURRENT_EXPERIENCE, PROFILE } from "@/data/profile";
 import { SITE } from "@/data/site";
 import { GitHubStats } from "@/components/sections/github-stats";
 import { ExperienceTimeline } from "@/components/sections/experience-timeline";
@@ -23,7 +23,7 @@ export default function HomePage() {
     <main className="relative">
       {/* Background Decor */}
       <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.03),transparent_70%)]" />
+        <div className="company-backdrop absolute inset-0" />
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgb(var(--bg))_90%)]" />
       </div>
 
@@ -32,11 +32,24 @@ export default function HomePage() {
         <div className="container relative z-10 py-16 sm:py-32">
           <Reveal variant="fade" delay={0.1}>
             <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/5 px-4 py-2 text-xs font-medium text-brand shadow-glow">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
+              {CURRENT_EXPERIENCE ? (
+                <span className="current-company-mark shrink-0" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              ) : (
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-brand" />
+                </span>
+              )}
+              <span>
+                {CURRENT_EXPERIENCE
+                  ? `${CURRENT_EXPERIENCE.company} · ${CURRENT_EXPERIENCE.role} · ${PROFILE.now}`
+                  : PROFILE.now}
               </span>
-              <span>{PROFILE.now}</span>
             </div>
           </Reveal>
 
@@ -44,7 +57,7 @@ export default function HomePage() {
             <Reveal staggerChildren={0.1} delay={0.2}>
               <RevealItem>
                 <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-7xl lg:text-8xl">
-                  <span className="gradient-text bg-gradient-to-r from-blue-400 via-violet-400 to-emerald-300">
+                  <span className="gradient-text company-name-gradient">
                     {PROFILE.name}
                   </span>
                 </h1>
@@ -86,7 +99,7 @@ export default function HomePage() {
 
             <Reveal variant="scale" delay={0.4} className="hidden lg:block">
               <Parallax offset={30}>
-                <Card className="overflow-hidden border-brand/10 bg-card/40 backdrop-blur-xl">
+                <Card className="company-profile-card overflow-hidden border-brand/10 bg-card/40 backdrop-blur-xl">
                   <div className="aspect-[4/3] relative">
                     <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent z-10" />
                     <img
@@ -100,7 +113,11 @@ export default function HomePage() {
                     <div className="flex items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 backdrop-blur-2xl">
                       <div className="min-w-0">
                         <div className="truncate text-lg font-bold text-fg">{PROFILE.name}</div>
-                        <div className="truncate text-sm text-muted">Consultant @ Microsoft</div>
+                        <div className="truncate text-sm text-brand">
+                          {CURRENT_EXPERIENCE
+                            ? `${CURRENT_EXPERIENCE.role} @ ${CURRENT_EXPERIENCE.company}`
+                            : "Open to opportunities"}
+                        </div>
                       </div>
                     </div>
                     

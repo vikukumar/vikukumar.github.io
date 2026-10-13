@@ -101,8 +101,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             style={{
               background:
                 flash.theme === "dark"
-                  ? "radial-gradient(900px 500px at 30% 20%, rgba(59,130,246,0.25), transparent 60%), radial-gradient(700px 400px at 75% 25%, rgba(168,85,247,0.22), transparent 62%), rgb(7,9,17)"
-                  : "radial-gradient(900px 500px at 30% 20%, rgba(59,130,246,0.20), transparent 60%), radial-gradient(700px 400px at 75% 25%, rgba(168,85,247,0.14), transparent 62%), rgb(250,251,255)"
+                  ? "radial-gradient(900px 500px at 30% 20%, rgb(var(--brand) / 0.25), transparent 60%), radial-gradient(700px 400px at 75% 25%, rgb(var(--brand-secondary) / 0.22), transparent 62%), rgb(7,9,17)"
+                  : "radial-gradient(900px 500px at 30% 20%, rgb(var(--brand) / 0.20), transparent 60%), radial-gradient(700px 400px at 75% 25%, rgb(var(--brand-secondary) / 0.14), transparent 62%), rgb(250,251,255)"
             }}
             onAnimationComplete={() => setFlash(null)}
           />

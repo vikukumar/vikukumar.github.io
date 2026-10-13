@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -65,6 +65,7 @@ const STEPS = [
 
 function StepCard({ step, index }: { step: typeof STEPS[number]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "center center", "end start"]
@@ -73,10 +74,28 @@ function StepCard({ step, index }: { step: typeof STEPS[number]; index: number }
   const opacity = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [0, 1, 1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [0.8, 1, 1, 0.8]);
   const x = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [100, 0, 0, -100]);
+  const rotateX = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [8, 0, 0, -8]);
+  const rotateY = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [-3, 0, 0, 3]);
+  const z = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [-60, 0, 0, -60]);
 
   return (
-    <div ref={ref} className="min-h-screen flex items-center justify-center py-12 sm:py-20 overflow-hidden">
-      <motion.div style={{ opacity, scale, x }} className="w-full max-w-5xl px-4">
+    <div
+      ref={ref}
+      className="min-h-screen flex items-center justify-center py-12 sm:py-20 overflow-hidden"
+      style={{ perspective: 1400 }}
+    >
+      <motion.div
+        style={{
+          opacity: reduceMotion ? 1 : opacity,
+          scale: reduceMotion ? 1 : scale,
+          x: reduceMotion ? 0 : x,
+          rotateX: reduceMotion ? 0 : rotateX,
+          rotateY: reduceMotion ? 0 : rotateY,
+          z: reduceMotion ? 0 : z,
+          transformStyle: "preserve-3d"
+        }}
+        className="w-full max-w-5xl px-4"
+      >
         <Card className="p-6 md:p-16 bg-card/40 backdrop-blur-2xl border-white/5 relative group">
           <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-brand/5 blur-[120px] group-hover:bg-brand/10 transition-all duration-700" />
           

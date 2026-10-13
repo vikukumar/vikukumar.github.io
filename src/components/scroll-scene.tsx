@@ -12,6 +12,14 @@ type Planet = {
   phase: number;
 };
 
+type ScenePalette = {
+  brand: string;
+  secondary: string;
+  tertiary: string;
+  foreground: string;
+  isLight: boolean;
+};
+
 const planets: Planet[] = [
   { name: "Mercury", radius: 46, size: 2.2, period: 87.969, color: "#a99f92", tilt: 0.18, phase: 4.4 },
   { name: "Venus", radius: 68, size: 3.8, period: 224.701, color: "#e5c07b", tilt: -0.08, phase: 1.35 },
@@ -50,12 +58,22 @@ function drawGlow(ctx: CanvasRenderingContext2D, x: number, y: number, radius: n
   ctx.fill();
 }
 
-function drawSpiralGalaxy(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: number, rot: number, alpha: number, palette: string[]) {
+function drawSpiralGalaxy(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  scale: number,
+  rot: number,
+  alpha: number,
+  colors: string[],
+  glowColor: string,
+  coreColor: string
+) {
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(rot);
   ctx.globalAlpha = alpha;
-  drawGlow(ctx, 0, 0, 220 * scale, "rgb(96,165,250)", 0.7);
+  drawGlow(ctx, 0, 0, 220 * scale, glowColor, 0.7);
 
   for (let arm = 0; arm < 3; arm++) {
     for (let i = 0; i < 180; i++) {
@@ -65,7 +83,7 @@ function drawSpiralGalaxy(ctx: CanvasRenderingContext2D, cx: number, cy: number,
       const jitter = Math.sin(i * 9.17 + arm) * 8 * scale;
       const x = Math.cos(angle) * (r + jitter);
       const y = Math.sin(angle) * (r + jitter) * 0.42;
-      ctx.fillStyle = palette[i % palette.length];
+      ctx.fillStyle = colors[i % colors.length];
       ctx.globalAlpha = alpha * (1 - t * 0.55);
       ctx.beginPath();
       ctx.arc(x, y, Math.max(0.35, (1.9 - t) * scale), 0, Math.PI * 2);
@@ -74,7 +92,7 @@ function drawSpiralGalaxy(ctx: CanvasRenderingContext2D, cx: number, cy: number,
   }
 
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = "rgba(255,255,255,0.86)";
+  ctx.fillStyle = coreColor;
   ctx.beginPath();
   ctx.arc(0, 0, 6 * scale, 0, Math.PI * 2);
   ctx.fill();
@@ -85,6 +103,14 @@ export function ScrollScene() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const scrollRef = useRef(0);
   const motionRef = useRef(0);
+  const renderRef = useRef<(() => void) | null>(null);
+  const paletteRef = useRef<ScenePalette>({
+    brand: "96,165,250",
+    secondary: "168,85,247",
+    tertiary: "16,185,129",
+    foreground: "232,236,249",
+    isLight: false
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -92,6 +118,22 @@ export function ScrollScene() {
 
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
+
+    const readThemePalette = () => {
+      const root = document.documentElement;
+      const styles = window.getComputedStyle(root);
+      const readColor = (name: string, fallback: string) =>
+        styles.getPropertyValue(name).trim().split(/\s+/).join(",") || fallback;
+
+      paletteRef.current = {
+        brand: readColor("--brand", "96,165,250"),
+        secondary: readColor("--brand-secondary", "168,85,247"),
+        tertiary: readColor("--brand-tertiary", "16,185,129"),
+        foreground: readColor("--fg", "232,236,249"),
+        isLight: root.dataset.theme === "light"
+      };
+    };
+    readThemePalette();
 
     const rand = mulberry32(42690);
     const stars = Array.from({ length: 360 }, () => ({
@@ -106,13 +148,14 @@ export function ScrollScene() {
       y: rand(),
       r: 24 + rand() * 90,
       a: 0.015 + rand() * 0.055,
-      c: rand() > 0.5 ? "96,165,250" : "168,85,247"
+      c: rand() > 0.5 ? "brand" as const : "secondary" as const
     }));
 
     let width = 0;
     let height = 0;
     let frame = 0;
     let raf = 0;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -176,20 +219,24 @@ export function ScrollScene() {
       frame += 0.006;
       motionRef.current += (scrollRef.current - motionRef.current) * 0.045;
       const depth = motionRef.current;
+      const palette = paletteRef.current;
 
       ctx.clearRect(0, 0, width, height);
-      const bg = ctx.createLinearGradient(0, 0, width, height);
-      bg.addColorStop(0, "#030712");
-      bg.addColorStop(0.45, depth < 0.35 ? "#08111f" : "#0b1027");
-      bg.addColorStop(1, depth > 0.65 ? "#11091d" : "#02040a");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, width, height);
+      if (!palette.isLight) {
+        const bg = ctx.createLinearGradient(0, 0, width, height);
+        bg.addColorStop(0, `rgba(${palette.brand},0.08)`);
+        bg.addColorStop(0.45, `rgba(${depth < 0.35 ? palette.brand : palette.secondary},0.1)`);
+        bg.addColorStop(1, `rgba(${palette.tertiary},0.06)`);
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, width, height);
+      }
 
       for (const cloud of dust) {
         const x = ((cloud.x * width + depth * 220 * cloud.x) % (width + 220)) - 110;
         const y = ((cloud.y * height + Math.sin(frame + cloud.x * 8) * 22) % (height + 220)) - 110;
         const g = ctx.createRadialGradient(x, y, 0, x, y, cloud.r);
-        g.addColorStop(0, `rgba(${cloud.c},${cloud.a})`);
+        const color = cloud.c === "brand" ? palette.brand : palette.secondary;
+        g.addColorStop(0, `rgba(${color},${cloud.a})`);
         g.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = g;
         ctx.fillRect(x - cloud.r, y - cloud.r, cloud.r * 2, cloud.r * 2);
@@ -200,7 +247,7 @@ export function ScrollScene() {
         const x = (star.x * width + drift + Math.sin(frame * star.z + star.y * 12) * 10) % width;
         const y = (star.y * height + depth * 70 * star.z) % height;
         ctx.globalAlpha = star.a * (0.55 + Math.sin(frame * 3 + star.x * 20) * 0.25);
-        ctx.fillStyle = "#fff";
+        ctx.fillStyle = palette.isLight ? `rgb(${palette.foreground})` : "#fff";
         ctx.beginPath();
         ctx.arc(x, y, star.s * star.z, 0, Math.PI * 2);
         ctx.fill();
@@ -208,20 +255,28 @@ export function ScrollScene() {
       ctx.globalAlpha = 1;
 
       const far = Math.max(0, 1 - depth * 2.6);
-      drawSpiralGalaxy(ctx, width * 0.18, height * 0.22 + depth * 90, 0.95 + depth * 0.25, frame * 0.18, 0.5 * far, ["#bfdbfe", "#a78bfa", "#fef3c7"]);
-      drawSpiralGalaxy(ctx, width * 0.78, height * 0.18 + depth * 70, 0.74, -frame * 0.16, 0.45 * far, ["#c4b5fd", "#93c5fd", "#fbcfe8"]);
-      drawSpiralGalaxy(ctx, width * 0.62, height * 0.72 - depth * 120, 0.62, frame * 0.2, 0.35 * far, ["#bbf7d0", "#bae6fd", "#ddd6fe"]);
+      const galaxyColors = [
+        `rgb(${palette.brand})`,
+        `rgb(${palette.secondary})`,
+        `rgb(${palette.tertiary})`
+      ];
+      const coreColor = palette.isLight
+        ? `rgba(${palette.foreground},0.28)`
+        : "rgba(255,255,255,0.86)";
+      drawSpiralGalaxy(ctx, width * 0.18, height * 0.22 + depth * 90, 0.95 + depth * 0.25, frame * 0.18, 0.5 * far, galaxyColors, `rgb(${palette.brand})`, coreColor);
+      drawSpiralGalaxy(ctx, width * 0.78, height * 0.18 + depth * 70, 0.74, -frame * 0.16, 0.45 * far, galaxyColors, `rgb(${palette.secondary})`, coreColor);
+      drawSpiralGalaxy(ctx, width * 0.62, height * 0.72 - depth * 120, 0.62, frame * 0.2, 0.35 * far, galaxyColors, `rgb(${palette.tertiary})`, coreColor);
 
       const milky = Math.min(1, Math.max(0, (depth - 0.12) / 0.55));
       ctx.save();
       ctx.translate(width * 0.5, height * (0.52 - milky * 0.1));
       ctx.rotate(-0.35 + depth * 0.35);
       const band = ctx.createLinearGradient(-width, 0, width, 0);
-      band.addColorStop(0, "rgba(255,255,255,0)");
-      band.addColorStop(0.28, `rgba(96,165,250,${0.05 + milky * 0.18})`);
-      band.addColorStop(0.5, `rgba(255,255,255,${0.06 + milky * 0.18})`);
-      band.addColorStop(0.72, `rgba(168,85,247,${0.05 + milky * 0.16})`);
-      band.addColorStop(1, "rgba(255,255,255,0)");
+      band.addColorStop(0, `rgba(${palette.foreground},0)`);
+      band.addColorStop(0.28, `rgba(${palette.brand},${0.05 + milky * 0.18})`);
+      band.addColorStop(0.5, `rgba(${palette.foreground},${0.06 + milky * 0.18})`);
+      band.addColorStop(0.72, `rgba(${palette.secondary},${0.05 + milky * 0.16})`);
+      band.addColorStop(1, `rgba(${palette.foreground},0)`);
       ctx.fillStyle = band;
       ctx.filter = "blur(10px)";
       ctx.fillRect(-width, -height * 0.11, width * 2, height * 0.22);
@@ -244,8 +299,22 @@ export function ScrollScene() {
         drawPlanet(planet, cx, cy, zoom, solar);
       }
 
-      raf = requestAnimationFrame(render);
+      if (!reducedMotion) {
+        raf = requestAnimationFrame(render);
+      }
     };
+
+    renderRef.current = render;
+    const themeObserver = new MutationObserver(() => {
+      readThemePalette();
+      if (reducedMotion) {
+        raf = requestAnimationFrame(() => renderRef.current?.());
+      }
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "data-company-theme"]
+    });
 
     resize();
     updateScroll();
@@ -255,6 +324,8 @@ export function ScrollScene() {
 
     return () => {
       cancelAnimationFrame(raf);
+      themeObserver.disconnect();
+      renderRef.current = null;
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", updateScroll);
     };
@@ -264,7 +335,7 @@ export function ScrollScene() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0"
+      className="scroll-scene-canvas pointer-events-none fixed inset-0 z-0"
     />
   );
 }

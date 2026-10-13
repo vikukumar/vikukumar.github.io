@@ -9,7 +9,7 @@ export const PROFILE = {
   phone: "",
   githubUsername: "vikukumar",
   avatarUrl: "https://github.com/vikukumar.png?size=240",
-  now: "Consulting on Cloud & AI at Microsoft • Building platform + GenAI systems",
+  now: "Building production AI & cloud platforms",
   links: {
     github: "https://github.com/vikukumar",
     linkedin: "https://linkedin.com/in/vikash-edude",
@@ -309,3 +309,9 @@ export const PROFILE = {
   },
   starSeed: 1337
 } as const;
+
+export const CURRENT_EXPERIENCE =
+  PROFILE.experience.find((experience) => /\bPresent\b/i.test(experience.period)) ?? PROFILE.experience[0];
+
+export const COMPANY_THEME =
+  CURRENT_EXPERIENCE?.company.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default";
