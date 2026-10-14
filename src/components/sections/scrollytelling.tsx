@@ -4,66 +4,13 @@ import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PROFILE } from "@/data/profile";
+import { CompanyIcon } from "@/components/company-icon";
 
-const STEPS = [
-  {
-    title: "Design",
-    subtitle: "Architectural integrity from day zero.",
-    tags: ["API-first", "Threat model", "SLOs"],
-    description: "Start with the contract, the guardrails, and the service level objectives. I focus on defining clear boundaries and failure modes before writing a single line of code.",
-    points: [
-      "Define APIs and auth boundaries early.",
-      "Select gateway patterns for governance.",
-      "Design for operability and metrics."
-    ]
-  },
-  {
-    title: "Build",
-    subtitle: "Reliability at scale, by default.",
-    tags: ["FastAPI", "Microservices", "DX"],
-    description: "Shipping small, reliable services with strong defaults. I prioritize simplicity and correctness to ensure long-term maintainability and performance.",
-    points: [
-      "Production-ready microservices.",
-      "Automated scaffolding for speed.",
-      "Clean interfaces and versioning."
-    ]
-  },
-  {
-    title: "Secure",
-    subtitle: "Security is a process, not a product.",
-    tags: ["DevSecOps", "Policies", "Secrets"],
-    description: "Making security automated and invisible. I embed security controls directly into CI/CD pipelines to enforce policies without slowing down delivery.",
-    points: [
-      "Embed controls into CI/CD workflows.",
-      "Enforce least privilege access.",
-      "Automated policy enforcement."
-    ]
-  },
-  {
-    title: "Scale",
-    subtitle: "Platform-centric operations.",
-    tags: ["Kubernetes", "GitOps", "Observability"],
-    description: "Running workloads on Kubernetes with GitOps patterns. I focus on traffic governance and reliable multi-environment delivery.",
-    points: [
-      "GitOps-driven delivery (ArgoCD).",
-      "Robust traffic governance.",
-      "Observability-first operations."
-    ]
-  },
-  {
-    title: "Intelligence",
-    subtitle: "AI enablement with production discipline.",
-    tags: ["RAG", "Agents", "Fine-tuning"],
-    description: "Integrating LLM workflows into platform engineering. I make AI observable, safe, and truly useful in real-world production systems.",
-    points: [
-      "LLM workflow integration.",
-      "Observable and safe AI systems.",
-      "Data-driven fine-tuning."
-    ]
-  }
-] as const;
+const STEPS = [...PROFILE.experience].reverse();
+type ExperienceRole = (typeof PROFILE.experience)[number];
 
-function StepCard({ step, index }: { step: typeof STEPS[number]; index: number }) {
+function StepCard({ step, index }: { step: ExperienceRole; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
@@ -108,24 +55,31 @@ function StepCard({ step, index }: { step: typeof STEPS[number]; index: number }
             </div>
 
             <div>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {step.tags.map(t => (
-                  <Badge key={t} variant="secondary" className="bg-brand/10 text-brand border-none text-[10px] tracking-widest uppercase">{t}</Badge>
-                ))}
+              <div className="mb-6 flex flex-wrap items-center gap-4">
+                <CompanyIcon company={step.company} />
+                <div className="text-xs font-bold uppercase tracking-widest text-muted">
+                  <span className="text-brand">{step.company}</span>
+                  <span className="mx-2 text-muted/60">·</span>
+                  <span>{step.period}</span>
+                </div>
               </div>
-              <h3 className="text-3xl sm:text-4xl md:text-7xl font-bold text-fg mb-4 md:mb-6 leading-tight">{step.title}</h3>
-              <p className="text-lg md:text-2xl text-muted mb-8 md:mb-10 max-w-3xl leading-relaxed">{step.description}</p>
-              
-              <ul className="grid sm:grid-cols-2 gap-6">
-                {step.points.map(p => (
-                  <li key={p} className="flex items-start gap-4 text-sm font-medium text-fg/70">
-                    <div className="h-6 w-6 shrink-0 rounded-lg bg-brand/10 flex items-center justify-center text-brand">
-                      <div className="h-1.5 w-1.5 rounded-full bg-brand" />
-                    </div>
-                    {p}
-                  </li>
-                ))}
-              </ul>
+              <h3 className="mb-4 text-3xl font-bold leading-tight text-fg sm:text-4xl md:mb-6 md:text-7xl">{step.role}</h3>
+              <p className="mb-8 max-w-3xl text-lg leading-relaxed text-muted md:mb-10 md:text-2xl">
+                {step.story}
+              </p>
+
+              <div>
+                <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+                  Skills in this chapter
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {step.storySkills.map((skill) => (
+                    <Badge key={skill} variant="secondary" className="border-brand/15 bg-brand/10 text-brand">
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </Card>
@@ -137,8 +91,8 @@ function StepCard({ step, index }: { step: typeof STEPS[number]; index: number }
 export function Scrollytelling() {
   return (
     <div className="relative">
-      {STEPS.map((s, idx) => (
-        <StepCard key={s.title} step={s} index={idx} />
+      {STEPS.map((step, index) => (
+        <StepCard key={`${step.company}-${step.role}-${step.period}`} step={step} index={index} />
       ))}
     </div>
   );

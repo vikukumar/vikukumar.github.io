@@ -229,7 +229,7 @@ export function GitHubStats() {
         <StatCard label="Total PRs" value={data.exactStats?.totalPRs ?? data.events.filter(e => e.type === "PullRequestEvent").length} icon={FaCodePullRequest} colorClass="text-brand" />
         <StatCard label="Total Issues" value={data.exactStats?.totalIssues ?? "-"} icon={FaCircleExclamation} colorClass="text-rose-400" />
         <StatCard label="Contributed to (last year)" value={data.exactStats?.contributedToLastYear ?? "-"} icon={FaBookOpen} colorClass="text-violet-400" />
-        <StatCard label="Followers" value={data.totals.totalFollowers} icon={FaGithub} colorClass="text-fg" />
+        <StatCard label="Followers" value={data.totals.totalFollowers} icon={FaGithub} colorClass="text-white" />
       </div>
 
       {/* 3. Recruiter Signals */}

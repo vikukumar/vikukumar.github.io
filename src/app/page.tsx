@@ -79,13 +79,13 @@ export default function HomePage() {
                 </ButtonLink>
                 <div className="flex gap-2">
                   <ButtonLink href={PROFILE.links.github} variant="secondary" className="h-12 w-12 p-0">
-                    <FaGithub className="h-5 w-5" />
+                    <FaGithub className="h-5 w-5 text-white" />
                   </ButtonLink>
                   <ButtonLink href={PROFILE.links.linkedin} variant="secondary" className="h-12 w-12 p-0">
-                    <FaLinkedin className="h-5 w-5" />
+                    <FaLinkedin className="h-5 w-5 text-[#0A66C2]" />
                   </ButtonLink>
                   <ButtonLink href={`mailto:${PROFILE.email}`} variant="ghost" className="h-12 w-12 p-0">
-                    <Mail className="h-5 w-5" />
+                    <Mail className="h-5 w-5 text-brand" />
                   </ButtonLink>
                 </div>
               </RevealItem>
@@ -172,8 +172,8 @@ export default function HomePage() {
 
       <Section
         id="story"
-        title="Engineering Philosophy"
-        subtitle="How I conceptualize, build, and scale production-grade systems."
+        title="Engineering Journey"
+        subtitle="My path from Java foundations to backend and platform engineering, AI-first APIs, and enterprise Cloud & AI consulting."
       >
         <Scrollytelling />
       </Section>
@@ -251,7 +251,7 @@ export default function HomePage() {
                 {PROFILE.email}
               </ButtonLink>
               <ButtonLink href={PROFILE.links.linkedin} variant="secondary" className="h-12 px-10 text-base">
-                <FaLinkedin className="mr-2 h-5 w-5" />
+                <FaLinkedin className="mr-2 h-5 w-5 text-[#0A66C2]" />
                 LinkedIn
               </ButtonLink>
             </div>
