@@ -38,7 +38,7 @@ function StatCard({ label, value, icon: Icon, colorClass = "text-brand" }: { lab
 function RecruiterSignal({ label, value, detail }: { label: string; value: string | number; detail: string }) {
   return (
     <RevealItem>
-      <div className="rounded-2xl border border-white/5 bg-white/[0.04] p-5 transition-all hover:border-brand/25 hover:bg-brand/[0.06]">
+      <div className="portfolio-card-3d rounded-2xl border border-white/5 bg-white/[0.04] p-5 transition-all hover:border-brand/25 hover:bg-brand/[0.06]">
         <div className="text-[10px] font-bold uppercase tracking-widest text-muted">{label}</div>
         <div className="mt-3 text-2xl font-black tracking-tight text-fg">{value}</div>
         <div className="mt-2 text-xs font-medium leading-relaxed text-muted">{detail}</div>
@@ -229,13 +229,13 @@ export function GitHubStats() {
         <StatCard label="Total PRs" value={data.exactStats?.totalPRs ?? data.events.filter(e => e.type === "PullRequestEvent").length} icon={FaCodePullRequest} colorClass="text-brand" />
         <StatCard label="Total Issues" value={data.exactStats?.totalIssues ?? "-"} icon={FaCircleExclamation} colorClass="text-rose-400" />
         <StatCard label="Contributed to (last year)" value={data.exactStats?.contributedToLastYear ?? "-"} icon={FaBookOpen} colorClass="text-violet-400" />
-        <StatCard label="Followers" value={data.totals.totalFollowers} icon={FaGithub} colorClass="text-fg" />
+        <StatCard label="Followers" value={data.totals.totalFollowers} icon={FaGithub} colorClass="text-white" />
       </div>
 
       {/* 3. Recruiter Signals */}
       {recruiterSignals && (
         <Reveal variant="slide-up" delay={0.1} staggerChildren={0.05}>
-          <div className="rounded-[1.5rem] sm:rounded-[2.5rem] border border-brand/10 bg-card/30 p-5 sm:p-8">
+          <div className="portfolio-card-3d rounded-[1.5rem] sm:rounded-[2.5rem] border border-brand/10 bg-card/30 p-5 sm:p-8">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h4 className="text-xl font-bold">Snapshots</h4>
@@ -378,11 +378,11 @@ export function GitHubStats() {
 
       {/* 6. Recent Activity Only */}
       <RevealItem>
-        <div className="rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 bg-white/5 p-6 sm:p-10">
+        <div className="portfolio-card-3d rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5 bg-white/5 p-6 sm:p-10">
           <h4 className="text-lg font-bold mb-8">Recent Repository Activity</h4>
           <div className="grid sm:grid-cols-2 gap-4">
             {data.events.slice(0, 6).map(e => (
-              <div key={e.id} className="flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5 hover:border-brand/20 transition-all">
+              <div key={e.id} className="portfolio-card-3d flex items-center justify-between p-5 rounded-3xl bg-white/5 border border-white/5 hover:border-brand/20 transition-all">
                 <div className="truncate font-bold text-fg/90">{e.repo.split("/")[1]}</div>
                 <Badge variant="secondary" className="text-[9px] px-2 uppercase tracking-tighter">{e.label}</Badge>
               </div>

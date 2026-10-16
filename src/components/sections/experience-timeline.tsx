@@ -5,6 +5,7 @@ import { motion, useScroll } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { PROFILE } from "@/data/profile";
 import { Reveal, RevealItem } from "@/components/reveal";
+import { CompanyIcon } from "@/components/company-icon";
 
 export function ExperienceTimeline() {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -20,14 +21,17 @@ export function ExperienceTimeline() {
       />
 
       <Reveal staggerChildren={0.15} className="grid gap-12 pl-8 sm:pl-12">
-        {PROFILE.experience.map((e, idx) => (
+        {PROFILE.experience.map((e) => (
           <RevealItem key={`${e.company}-${e.role}-${e.period}`} className="relative">
             <div className="absolute -left-[1.75rem] sm:-left-[2.75rem] top-7 h-4 w-4 rounded-full border-2 border-brand bg-card shadow-glow" />
             <Card className="p-8 bg-card/40 border-border/50 hover:border-brand/30 transition-all">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-fg">{e.role}</h3>
-                  <p className="text-sm font-medium text-brand">{e.company}</p>
+                <div className="flex items-center gap-4">
+                  <CompanyIcon company={e.company} />
+                  <div>
+                    <h3 className="text-xl font-bold text-fg">{e.role}</h3>
+                    <p className="text-sm font-medium text-brand">{e.company}</p>
+                  </div>
                 </div>
                 <div className="text-xs font-bold uppercase tracking-widest text-muted bg-white/5 px-3 py-1 rounded-full border border-white/5">
                   {e.period}

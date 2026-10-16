@@ -33,12 +33,12 @@ export function ProjectsGrid() {
                     <div className="flex gap-2">
                       {p.links.repo && (
                         <ButtonLink href={p.links.repo} variant="secondary" className="h-10 w-10 p-0 rounded-xl">
-                          <FaGithub size={18} />
+                          <FaGithub size={18} className="text-white" />
                         </ButtonLink>
                       )}
                       {p.links.demo && (
                         <ButtonLink href={p.links.demo} variant="secondary" className="h-10 w-10 p-0 rounded-xl">
-                          <FaArrowUpRightFromSquare size={16} />
+                          <FaArrowUpRightFromSquare size={16} className="text-brand" />
                         </ButtonLink>
                       )}
                     </div>
@@ -85,7 +85,7 @@ export function ProjectsGrid() {
                   </div>
                   {p.links.demo && (
                     <ButtonLink href={p.links.demo} variant="secondary" className="h-10 w-10 p-0 rounded-xl">
-                      <FaArrowUpRightFromSquare size={16} />
+                      <FaArrowUpRightFromSquare size={16} className="text-brand" />
                     </ButtonLink>
                   )}
                 </div>

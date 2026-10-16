@@ -9,7 +9,7 @@ export const PROFILE = {
   phone: "",
   githubUsername: "vikukumar",
   avatarUrl: "https://github.com/vikukumar.png?size=240",
-  now: "Consulting on Cloud & AI at Microsoft • Building platform + GenAI systems",
+  now: "Building production AI & cloud platforms",
   links: {
     github: "https://github.com/vikukumar",
     linkedin: "https://linkedin.com/in/vikash-edude",
@@ -83,7 +83,19 @@ export const PROFILE = {
     },
     {
       title: "GenAI / ML",
-      items: ["Generative AI integration", "RAG", "Prompt Engineering", "LLM Fine-Tuning", "PyTorch", "NumPy"]
+      items: [
+        "Enterprise GenAI architecture",
+        "Retrieval-Augmented Generation (RAG)",
+        "LLM workflow integration",
+        "AI agents & cognitive workflows",
+        "Prompt engineering",
+        "LLM fine-tuning (MongoDB datasets)",
+        "AI-powered automation & forecasting",
+        "AI platform / API integration",
+        "Responsible AI & governance",
+        "PyTorch",
+        "NumPy"
+      ]
     }
   ],
   experience: [
@@ -96,6 +108,16 @@ export const PROFILE = {
         "Designing enterprise-ready Generative AI solutions, cognitive workflows, and distributed cloud systems aligned with architectural best practices.",
         "Advising enterprise stakeholders and delivering rapid PoCs and reference architectures that translate business needs into secure, scalable solution blueprints.",
         "Integrating backend microservices, API ecosystems, and automated deployment pipelines while driving cloud security, governance, performance, and responsible AI standards."
+      ],
+      story:
+        "At Microsoft, I partner with enterprise teams to turn business needs into secure, production-ready AI and cloud platforms. I shape the architecture and rapid PoCs, then connect GenAI workflows, backend services, and delivery pipelines with governance and responsible-AI practices.",
+      storySkills: [
+        "Cloud & AI architecture",
+        "Enterprise GenAI",
+        "Cognitive workflows",
+        "Distributed cloud",
+        "Microservices & APIs",
+        "Responsible AI"
       ]
     },
     {
@@ -108,6 +130,17 @@ export const PROFILE = {
         "Engineered API gateway ecosystems (Kong, Akana, Apigee) with automated governance and traffic control.",
         "Implemented Kubernetes-based CI/CD pipelines improving deployment scalability and reliability.",
         "Fine-tuned LLMs on MongoDB datasets and built AI-powered internal tools for forecasting, operational intelligence, and platform observability."
+      ],
+      story:
+        "At Infosys, I grew from shipping services into shaping platforms. I architected AI-first API systems, integrated GenAI and LLM workflows, and combined FastAPI/Next.js services with governed gateways. I also fine-tuned LLMs on MongoDB datasets and built AI tools for forecasting and operations.",
+      storySkills: [
+        "FastAPI",
+        "Next.js",
+        "Kong · Akana · Apigee",
+        "GenAI / LLM workflows",
+        "LLM fine-tuning",
+        "MongoDB",
+        "Kubernetes & CI/CD"
       ]
     },
     {
@@ -119,6 +152,17 @@ export const PROFILE = {
         "Integrated DevSecOps controls into CI/CD pipelines improving security posture.",
         "Delivered full-stack data platform (Angular + Python + MongoDB) with encryption and observability.",
         "Helped deploy and manage Kong platform on Kubernetes using ArgoCD/Azure Pipelines."
+      ],
+      story:
+        "I broadened backend and API work into secure platform delivery: automating Akana API lifecycles, bringing DevSecOps into CI/CD, and delivering a full-stack Angular/Python/MongoDB data platform. Kubernetes, ArgoCD, and Azure Pipelines connected that work to repeatable operations.",
+      storySkills: [
+        "Akana API lifecycle",
+        "DevSecOps",
+        "Angular",
+        "Python",
+        "MongoDB",
+        "Kubernetes",
+        "ArgoCD · Azure Pipelines"
       ]
     },
     {
@@ -129,6 +173,16 @@ export const PROFILE = {
         "Developed backend services using Python and C# for telecom applications.",
         "Managed APIs via Akana and Azure API Management with automation workflows.",
         "Contributed to enterprise data platform development and security enhancements."
+      ],
+      story:
+        "I began in production telecom engineering, building Python and C# backend services while managing APIs through Akana and Azure API Management. Those systems introduced me to enterprise integration, data-platform work, and security.",
+      storySkills: [
+        "Python",
+        "C#",
+        "Telecom services",
+        "Akana",
+        "Azure API Management",
+        "API security"
       ]
     },
     {
@@ -138,6 +192,16 @@ export const PROFILE = {
       highlights: [
         "Completed full-stack Java training (Java, Spring Boot, JDBC, MySQL, HTML/CSS/JS).",
         "Built end-to-end web applications during apprenticeship program."
+      ],
+      story:
+        "I built my software foundations through Java full-stack training and hands-on web applications, learning how Spring Boot, JDBC, MySQL, and frontend fundamentals fit together in an end-to-end product.",
+      storySkills: [
+        "Java",
+        "Spring Boot",
+        "JDBC",
+        "MySQL",
+        "HTML · CSS · JavaScript",
+        "Full-stack foundations"
       ]
     }
   ],
@@ -309,3 +373,9 @@ export const PROFILE = {
   },
   starSeed: 1337
 } as const;
+
+export const CURRENT_EXPERIENCE =
+  PROFILE.experience.find((experience) => /\bPresent\b/i.test(experience.period)) ?? PROFILE.experience[0];
+
+export const COMPANY_THEME =
+  CURRENT_EXPERIENCE?.company.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default";

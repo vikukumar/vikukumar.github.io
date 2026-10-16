@@ -10,7 +10,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "glass rounded-2xl shadow-glow transition hover:border-blue-300/30 hover:bg-card/70",
+        "glass portfolio-card-3d rounded-2xl shadow-glow transition-all hover:border-brand/30 hover:bg-card/70",
         className
       )}
     >
