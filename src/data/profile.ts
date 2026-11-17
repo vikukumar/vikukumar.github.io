@@ -26,6 +26,8 @@ export const PROFILE = {
     "GenAI Systems",
     "LLM Automation",
     "Cloud & AI Consulting",
+    "Generative AI",
+    "Enterprise AI Architecture",
     "Backend Engineering",
     "Platform Engineering",
     "API Platforms",
@@ -40,6 +42,7 @@ export const PROFILE = {
       title: "Languages & Frameworks",
       items: [
         "Python (FastAPI/Flask)",
+        "Java (Spring Boot)",
         "Node.js",
         "Next.js/React",
         "Angular",
@@ -78,7 +81,8 @@ export const PROFILE = {
         "MongoDB",
         "MySQL",
         "PostgreSQL",
-        "SQL Server"
+        "SQL Server",
+        "Redis (Streams & caching)"
       ]
     },
     {
