@@ -3,7 +3,7 @@ import "./globals.css";
 import { LenisProvider } from "@/components/lenis-provider";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { SiteNav } from "@/components/site-nav";
-import { COMPANY_THEME } from "@/data/profile";
+import { COMPANY_THEME, CURRENT_EXPERIENCE, PROFILE } from "@/data/profile";
 import { SITE } from "@/data/site";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeScript } from "@/components/theme/theme-script";
@@ -17,7 +17,10 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", displ
 export const metadata: Metadata = {
   title: `${SITE.name} — ${SITE.tagline}`,
   description: SITE.description,
-  keywords: [...SITE.keywords],
+  keywords: [...new Set([...SITE.keywords, ...PROFILE.keywords])],
+  authors: [{ name: PROFILE.name, url: PROFILE.links.github }],
+  creator: PROFILE.name,
+  applicationName: SITE.name,
   metadataBase: new URL(SITE.url),
   alternates: {
     canonical: "/"
@@ -63,11 +66,44 @@ export const metadata: Metadata = {
   }
 };
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${SITE.url}/#person`,
+      name: PROFILE.name,
+      url: SITE.url,
+      image: PROFILE.avatarUrl,
+      description: SITE.description,
+      jobTitle: CURRENT_EXPERIENCE?.role,
+      worksFor: { "@type": "Organization", name: CURRENT_EXPERIENCE?.company },
+      homeLocation: { "@type": "Place", name: PROFILE.location },
+      alumniOf: { "@type": "EducationalOrganization", name: PROFILE.education.institute },
+      knowsAbout: PROFILE.keywords,
+      sameAs: [PROFILE.links.github, PROFILE.links.linkedin, PROFILE.links.portfolio]
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE.url}/#website`,
+      name: SITE.name,
+      url: SITE.url,
+      description: SITE.description,
+      inLanguage: "en",
+      publisher: { "@id": `${SITE.url}/#person` }
+    }
+  ]
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="scroll-smooth" data-company-theme={COMPANY_THEME} suppressHydrationWarning>
       <head>
         <ThemeScript />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
+        />
       </head>
       <body className={`${inter.variable} ${mono.variable}`}>
         <ThemeProvider>
